@@ -13614,4 +13614,68 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get pressGrainUncheckedPrint =>
       'Рисунок не проверен — разложено без поворота';
+
+  @override
+  String filmSupLateTitle(int count, String metres) {
+    return 'Опаздывают поставки: $count · $metres м';
+  }
+
+  @override
+  String filmSupLateRow(String name, String metres, String day, int days) {
+    return '$name — $metres м, ждали $day · опоздание $days дн.';
+  }
+
+  @override
+  String filmSupToOrderTitle(int count) {
+    return 'Пора заказать — плёнок: $count';
+  }
+
+  @override
+  String get filmSupWant => 'В «К заказу»';
+
+  @override
+  String filmSupWanted(int count) {
+    return 'В списке «К заказу»: $count';
+  }
+
+  @override
+  String filmSupDaysLeft(int days) {
+    return 'хватит на ~$days дн.';
+  }
+
+  @override
+  String filmSupLateNote(String metres) {
+    return 'опаздывает $metres м';
+  }
+
+  @override
+  String get filmSupOwedNone => 'никому';
+
+  @override
+  String filmSupDependence(String name, int share) {
+    return '$share% плёнки — от $name. Сорвёт поставку — встанет цех.';
+  }
+
+  @override
+  String get filmSupColSupplier => 'Поставщик';
+
+  @override
+  String get filmSupColSold => 'Продано';
+
+  @override
+  String get filmSupColOnTime => 'Вовремя';
+
+  @override
+  String get filmSupColLead => 'Срок: обещал → по факту';
+
+  @override
+  String get filmSupColPrice => 'Цена';
+
+  @override
+  String filmSupLeadCell(int promised, int actual) {
+    return '$promised → $actual дн.';
+  }
+
+  @override
+  String get filmSupNoSales => 'за период не брали';
 }

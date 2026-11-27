@@ -537,54 +537,56 @@ class FilmSupplierTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.xxs),
       child: Material(
-      color: theme.colorScheme.surfaceContainerLow,
-      child: InkWell(
-        key: ValueKey('filmSource:${r.id}'),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.sm),
-          child: LayoutBuilder(
-            builder: (context, box) => box.maxWidth < _tableWidth
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(child: name),
-                          actions,
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      sold,
-                      const SizedBox(height: AppSpacing.xs),
-                      Wrap(
-                        spacing: AppSpacing.md,
-                        runSpacing: AppSpacing.xxs,
-                        children: [onTime, lead, price],
-                      ),
-                    ],
-                  )
-                : Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(flex: _flex.name, child: name),
-                      Expanded(
-                        flex: _flex.sold,
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: AppSpacing.md),
-                          child: sold,
+        color: theme.colorScheme.surfaceContainerLow,
+        child: InkWell(
+          key: ValueKey('filmSource:${r.id}'),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            child: LayoutBuilder(
+              builder: (context, box) => box.maxWidth < _tableWidth
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: name),
+                            actions,
+                          ],
                         ),
-                      ),
-                      Expanded(flex: _flex.onTime, child: onTime),
-                      Expanded(flex: _flex.lead, child: lead),
-                      Expanded(flex: _flex.price, child: price),
-                      SizedBox(width: AppSpacing.xxxl * 2, child: actions),
-                    ],
-                  ),
+                        const SizedBox(height: AppSpacing.xs),
+                        sold,
+                        const SizedBox(height: AppSpacing.xs),
+                        Wrap(
+                          spacing: AppSpacing.md,
+                          runSpacing: AppSpacing.xxs,
+                          children: [onTime, lead, price],
+                        ),
+                      ],
+                    )
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(flex: _flex.name, child: name),
+                        Expanded(
+                          flex: _flex.sold,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              right: AppSpacing.md,
+                            ),
+                            child: sold,
+                          ),
+                        ),
+                        Expanded(flex: _flex.onTime, child: onTime),
+                        Expanded(flex: _flex.lead, child: lead),
+                        Expanded(flex: _flex.price, child: price),
+                        SizedBox(width: AppSpacing.xxxl * 2, child: actions),
+                      ],
+                    ),
+            ),
           ),
         ),
-      ),
       ),
     );
   }
