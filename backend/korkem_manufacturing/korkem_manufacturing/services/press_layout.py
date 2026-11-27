@@ -946,7 +946,15 @@ def is_textured(decor: str, company: str) -> bool:
 def _parts_by_decor(sales_order: str) -> dict[str, list[Part]]:
 	groups: dict[str, list[Part]] = {}
 	company = frappe.db.get_value("Sales Order", sales_order, "company")
-	textured = set(textured_decors(company)) if company else set()
+	# Textured, or nobody has looked at the roll: laid pattern along the
+	# table, «по высоте» unless the order says otherwise (owner, 27.11.2026).
+	# Laid as drawn instead, a part 2000 high did not fit the table at all.
+	careful: dict[str, bool] = {}
+
+	def is_careful(decor: str) -> bool:
+		if decor not in careful:
+			careful[decor] = bool(company) and film_grain(decor, company) != material_stock.PLAIN
+		return careful[decor]
 	for line in frappe.get_all(
 		"Sales Order Item",
 		filters={"parent": sales_order, "parenttype": "Sales Order", "korkem_width_mm": [">", 0]},
@@ -963,7 +971,7 @@ def _parts_by_decor(sales_order: str) -> dict[str, list[Part]]:
 		for decor in faces:
 			if not decor:
 				continue
-			grain = ("width" if line.korkem_grain == "width" else "height") if decor in textured else ""
+			grain = ("width" if line.korkem_grain == "width" else "height") if is_careful(decor) else ""
 			groups.setdefault(decor, []).extend(
 				Part(cint(line.idx), cint(line.korkem_width_mm), cint(line.korkem_height_mm), grain)
 				for _ in range(cint(line.qty))

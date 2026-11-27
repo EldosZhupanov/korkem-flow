@@ -450,7 +450,11 @@ class TestAnOrderOnThePress(IntegrationTestCase):
 		self.orders.append(order)
 		films = {f["decor"]: f for f in self._as(CUTTER, press_layout.order_layout, order)["films"]}
 		self.assertEqual((films[UNSEEN]["grain"], films[UNSEEN]["textured"]), ("", False))
-		self.assertFalse(any(p["rotated"] for load in films[UNSEEN]["loads"] for p in load["placed"]))
+		# Laid as a textured film is, «по высоте»: the height along the table,
+		# each part turned from the order's drawing (598 wide, 298 high).
+		placed = [p for load in films[UNSEEN]["loads"] for p in load["placed"]]
+		self.assertTrue(all(p["rotated"] for p in placed))
+		self.assertEqual({p["width"] for p in placed}, {298})
 		# Only an editor changes a card; at the press, anyone who holds the roll.
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, material_stock.set_film_grain, "plain", item=item)
