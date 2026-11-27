@@ -96,6 +96,12 @@ class FilmSupplierAlerts extends ConsumerWidget {
       ),
     );
 
+    // «Белое дерево 40 м · Графит 50 м».
+    String films(FilmSupplierRow r) => [
+      for (final o in r.reorder)
+        [o.title, l10n.filmSupM(filmMetres(o.metres))].join(' '),
+    ].join(' · ');
+
     Widget line(String key, String text, List<Widget> actions) => Padding(
       padding: const EdgeInsets.only(top: AppSpacing.xs),
       child: Wrap(
@@ -151,9 +157,7 @@ class FilmSupplierAlerts extends ConsumerWidget {
               for (final r in toOrder)
                 line(
                   'filmSup:toOrder:${r.id}',
-                  '${r.name}: ${[
-                    for (final o in r.reorder) [o.title, l10n.filmSupM(filmMetres(o.metres))].join(' '),
-                  ].join(' · ')}',
+                  '${r.name}: ${films(r)}',
                   [
                     if (canOrder)
                       OutlinedButton.icon(
