@@ -1,0 +1,29 @@
+{
+  "name": "ТЕСТ из 33.tap — удалить",
+  "controller": "ncstudio",
+  "units": "mm",
+  "file_extension": "tap",
+  "line_ending": "crlf",
+  "line_numbers": false,
+  "line_number_start": 10,
+  "line_number_step": 10,
+  "decimals_xyz": 3,
+  "decimals_feed": 1,
+  "arcs": false,
+  "arc_center": "incremental",
+  "spindle_wait_ms": 0,
+  "comments": "none",
+  "header": [
+    "T{T}M6",
+    "G0Z40.000"
+  ],
+  "tool_change": [],
+  "footer": [
+    "G0Z40.000",
+    "G0X0.000Y0.000",
+    "G0Z40.000",
+    "G0X0Y0",
+    "M30"
+  ],
+  "notes": "По образцу «33.tap»: фрезы T1. Перед первой резкой — прогон без материала (выше листа)."
+}
