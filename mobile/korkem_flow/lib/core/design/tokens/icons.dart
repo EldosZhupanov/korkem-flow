@@ -133,6 +133,15 @@ abstract final class AppIcons {
   static const IconData menu = Symbols.menu_rounded;
   static const IconData more = Symbols.more_vert_rounded;
   static const IconData undo = Symbols.undo_rounded;
+  static const IconData redo = Symbols.redo_rounded;
+
+  // The press editor (27.11.2026): its scale, its tray, laying the rest.
+  static const IconData zoomIn = Symbols.zoom_in_rounded;
+  static const IconData zoomOut = Symbols.zoom_out_rounded;
+  static const IconData zoomFit = Symbols.fit_screen_rounded;
+  static const IconData tray = Symbols.inbox_rounded;
+  static const IconData layRest = Symbols.auto_fix_high_rounded;
+  static const IconData centre = Symbols.vertical_align_center_rounded;
   static const IconData check = Symbols.check_rounded;
 
   /// An order's sticker, and reading one (owner, 18.11.2026).

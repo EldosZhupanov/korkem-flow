@@ -11932,5 +11932,53 @@
       }
     }
   },
-  "filmSupNoSales": "nothing bought in the period"
+  "filmSupNoSales": "nothing bought in the period",
+  "pressEditUndo": "Undo (Ctrl+Z)",
+  "pressEditRedo": "Redo (Ctrl+Y)",
+  "pressEditZoomOut": "Zoom out (Ctrl −)",
+  "pressEditZoomIn": "Zoom in (Ctrl +)",
+  "pressEditZoomFit": "Fit to screen (Ctrl 0)",
+  "pressEditAddEmpty": "Empty load",
+  "pressEditLayRest": "Lay the rest",
+  "pressEditLayRestSave": "Lay the rest and keep",
+  "pressEditTrayLeft": "Parts in the tray: {count}",
+  "@pressEditTrayLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pressEditTrayLeftBody": "Without them the layout is short — the press would forget them. The app lays them in free places or a new load.",
+  "pressEditFromEdge": "from the edge, mm",
+  "pressEditFromTop": "from the top, mm",
+  "pressEditCentre": "Centre",
+  "pressEditToTray": "To the tray (Delete)",
+  "pressEditEmptyLoad": "Load {count} · empty",
+  "@pressEditEmptyLoad": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pressEditEmptyHint": "drag parts here",
+  "pressEditFill": "{percent}% full",
+  "@pressEditFill": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "pressEditDropEmpty": "Remove the empty load",
+  "pressEditTrayEmpty": "The tray is empty — put a part here (or Delete) to make room",
+  "pressEditTray": "Tray — not laid: {count}. Drag onto a table or «Lay the rest».",
+  "@pressEditTray": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }
