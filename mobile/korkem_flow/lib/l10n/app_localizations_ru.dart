@@ -13564,4 +13564,54 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfDueNoSizes => 'примерно: размеров ещё нет';
+
+  @override
+  String get filmGrainUnchecked =>
+      'Рисунок не проверен — на прессе без поворота';
+
+  @override
+  String get filmGrainTextured => 'Текстура: рисунок вдоль стола';
+
+  @override
+  String get filmGrainPlain => 'Однотон: детали можно поворачивать';
+
+  @override
+  String get filmGrainChange => 'изменить';
+
+  @override
+  String filmGrainSaved(int count) {
+    return 'Отмечено плёнок: $count';
+  }
+
+  @override
+  String filmGrainTitle(String film) {
+    return 'Рисунок плёнки «$film»';
+  }
+
+  @override
+  String filmGrainCollection(String collection, int count) {
+    return 'Всю коллекцию «$collection» — $count плёнок';
+  }
+
+  @override
+  String get fpkTextured => 'Текстурные';
+
+  @override
+  String pressGrainAsk(String film) {
+    return '$film: посмотрите на рулон — есть у рисунка направление?';
+  }
+
+  @override
+  String get pressGrainAskHint =>
+      'Можно не отвечать — уже разложено без поворота. Ответ запомнится для всех заказов.';
+
+  @override
+  String get pressGrainTextured => 'Есть рисунок';
+
+  @override
+  String get pressGrainPlain => 'Нет, однотон';
+
+  @override
+  String get pressGrainUncheckedPrint =>
+      'Рисунок не проверен — разложено без поворота';
 }

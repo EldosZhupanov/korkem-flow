@@ -2061,8 +2061,7 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
               if ((_maker == null || g.first.maker == _maker) &&
                   (_type == null || g.first.type == _type) &&
                   (!_onShelf || freeOf(g) > 0) &&
-                  (!_textured ||
-                      g.any((f) => f.grain == FilmGrain.textured)) &&
+                  (!_textured || g.any((f) => f.grain == FilmGrain.textured)) &&
                   _found([
                     g.first.maker,
                     g.first.colour,
@@ -2601,8 +2600,7 @@ class _GrainDialogState extends State<_GrainDialog> {
                 avatar: const Icon(AppIcons.textured),
                 label: Text(l10n.pressGrainTextured),
                 selected: grain == FilmGrain.textured,
-                onSelected: (_) =>
-                    setState(() => _grain = FilmGrain.textured),
+                onSelected: (_) => setState(() => _grain = FilmGrain.textured),
               ),
               ChoiceChip(
                 key: const ValueKey('filmGrain:plain'),

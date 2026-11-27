@@ -565,8 +565,7 @@ class _FilmCard extends ConsumerWidget {
               ),
             // Nobody has looked at the roll (owner, 27.11.2026): laid
             // unturned already; whoever holds it says once, for every order.
-            if (film.unchecked)
-              _GrainAsk(film: film, salesOrder: salesOrder),
+            if (film.unchecked) _GrainAsk(film: film, salesOrder: salesOrder),
             // «Чуть-чуть не влезло» (owner, 26.11.2026): a gap a little
             // narrower saves a load — tried on the panel, kept by hand.
             if (film.hint case final hint? when onTryGap != null)

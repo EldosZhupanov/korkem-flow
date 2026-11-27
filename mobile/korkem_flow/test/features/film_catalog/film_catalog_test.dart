@@ -140,8 +140,9 @@ class _Fake implements FilmCatalogRepository {
   }
 
   @override
-  Future<List<String>> setGrainAtPress(String decor, FilmGrain grain) async =>
-      [decor];
+  Future<List<String>> setGrainAtPress(String decor, FilmGrain grain) async => [
+    decor,
+  ];
 
   @override
   Future<Film> setCard(String item, Map<String, Object?> card) async {

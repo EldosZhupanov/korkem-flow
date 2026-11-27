@@ -13529,4 +13529,53 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfDueNoSizes => 'roughly: no sizes yet';
+
+  @override
+  String get filmGrainUnchecked =>
+      'Pattern not checked — laid unturned on the press';
+
+  @override
+  String get filmGrainTextured => 'Textured: pattern along the table';
+
+  @override
+  String get filmGrainPlain => 'Plain: parts may be turned';
+
+  @override
+  String get filmGrainChange => 'change';
+
+  @override
+  String filmGrainSaved(int count) {
+    return 'Films marked: $count';
+  }
+
+  @override
+  String filmGrainTitle(String film) {
+    return 'Pattern of «$film»';
+  }
+
+  @override
+  String filmGrainCollection(String collection, int count) {
+    return 'The whole «$collection» collection — $count films';
+  }
+
+  @override
+  String get fpkTextured => 'Textured';
+
+  @override
+  String pressGrainAsk(String film) {
+    return '$film: look at the roll — does the pattern have a direction?';
+  }
+
+  @override
+  String get pressGrainAskHint =>
+      'No need to answer — already laid unturned. The answer is kept for every order.';
+
+  @override
+  String get pressGrainTextured => 'Has a pattern';
+
+  @override
+  String get pressGrainPlain => 'No, plain';
+
+  @override
+  String get pressGrainUncheckedPrint => 'Pattern not checked — laid unturned';
 }
