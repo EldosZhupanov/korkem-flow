@@ -153,7 +153,7 @@ class FilmSupplierAlerts extends ConsumerWidget {
                   'filmSup:toOrder:${r.id}',
                   '${r.name}: ${[
                     for (final o in r.reorder) '${o.title} '
-                        '${l10n.filmSupM(filmMetres(o.metres))}',
+                          '${l10n.filmSupM(filmMetres(o.metres))}',
                   ].join(' · ')}',
                   [
                     if (canOrder)
