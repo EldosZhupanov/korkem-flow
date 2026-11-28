@@ -4091,5 +4091,10 @@
   "filmTeamAvgSale": "средний чек {amount}",
   "filmTeamBonusMore": "+100 м → +{amount}",
   "filmTeamOwedSales": "долги его клиентов {amount} · продаж: {count}",
-  "filmReportThin": "«{film}» продаётся с маржой {margin}/м — ниже {limit}. Проверьте розничную цену."
+  "filmReportThin": "«{film}» продаётся с маржой {margin}/м — ниже {limit}. Проверьте розничную цену.",
+  "mdfRowStageDoneWho": "{order}: {stage} готов — {who}",
+  "mdfRowStageNoDoer": "{order}: {stage} готов. Кто делал — не указано",
+  "mdfDoerSet": "Кто делал",
+  "mdfFilterNoDoer": "Без исполнителя · {count}",
+  "mdfStageNoDoer": "кто?"
 }

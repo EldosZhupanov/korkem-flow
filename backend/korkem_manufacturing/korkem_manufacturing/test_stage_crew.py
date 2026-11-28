@@ -133,3 +133,37 @@ class TestStageCrew(IntegrationTestCase):
 		self._as(MANAGER, team_people.hand_over, c)
 		self.assertEqual(stage_crew.get(order, "vacuum", "to"), [])
 		self.assertEqual(frappe.db.get_value("Sales Order", order, mdf_orders.STAGE_TO["vacuum"]), a)
+
+	def test_a_tick_with_nobody_known_is_named_later_and_keeps_its_date(self):
+		# Owner, 28.11.2026: a tick asks nothing; who did it is said afterwards.
+		a, b = self._person("Ералы"), self._person("Тима")
+		order = self._order()
+		# Two on the vacuum post and given to nobody: the tick names nobody.
+		self._as(MANAGER, mdf_orders.set_stage, order, "vacuum", True)
+		self.assertFalse(frappe.db.get_value("Sales Order", order, mdf_orders.STAGE_BY["vacuum"]))
+		self.assertIn(order, mdf_orders.without_doer(COMPANY))
+		row = next(r for r in self._as(MANAGER, mdf_orders.listing, search=order, no_doer=1)["orders"]
+				   if r["name"] == order)
+		vacuum = next(s for s in row["stages"] if s["stage"] == "vacuum")
+		self.assertEqual((vacuum["done"], vacuum["by"]), (True, False))
+		# Named three days later: the date stays the tick's, his m² count.
+		ticked_on = add_days(nowdate(), -3)
+		frappe.db.set_value("Sales Order", order, mdf_orders.STAGES["vacuum"], ticked_on)
+		card = self._as(MANAGER, mdf_orders.set_doer, order, "vacuum", a)
+		vacuum = next(s for s in card["stages"] if s["stage"] == "vacuum")
+		self.assertEqual((vacuum["worker"], vacuum["done_on"]), (a, str(ticked_on)))
+		self.assertNotIn(order, mdf_orders.without_doer(COMPANY))
+		# A crew instead: each his share, the date still the same.
+		card = self._as(MANAGER, mdf_orders.set_doer, order, "vacuum", crew=[a, b])
+		vacuum = next(s for s in card["stages"] if s["stage"] == "vacuum")
+		self.assertEqual([(p["employee"], p["share"]) for p in vacuum["crew"]], [(a, 50), (b, 50)])
+		self.assertEqual(vacuum["done_on"], str(ticked_on))
+		# Nobody again: back on the list.
+		self._as(MANAGER, mdf_orders.set_doer, order, "vacuum")
+		self.assertIn(order, mdf_orders.without_doer(COMPANY))
+
+	def test_who_did_a_stage_not_ticked_cannot_be_said(self):
+		a = self._person("Ералы")
+		order = self._order()
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_orders.set_doer, order, "vacuum", a)

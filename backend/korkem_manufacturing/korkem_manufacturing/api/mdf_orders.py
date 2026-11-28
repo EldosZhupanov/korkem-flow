@@ -65,6 +65,12 @@ def set_stage(order: str, stage: str, done: bool | int | str = 1, worker: str | 
 
 
 @frappe.whitelist(methods=["POST"])
+def set_doer(order: str, stage: str, worker: str | None = None, crew: str | list | None = None) -> dict:
+	"""Кто сделал уже отмеченный этап; дата этапа не меняется. Пусто — никто."""
+	return service.set_doer(order, stage, worker or None, crew=crew or None)
+
+
+@frappe.whitelist(methods=["POST"])
 def assign(order: str, stage: str, worker: str | None = None, crew: str | list | None = None) -> dict:
 	"""Отдать этап заказа сотруднику или нескольким (`crew`, JSON с долями); пусто — снять."""
 	return service.assign(order, stage, worker or None, crew=crew or None)
@@ -128,9 +134,9 @@ def set_material_price(order: str, item: str, price: float | str) -> dict:
 @frappe.whitelist(methods=["GET"])
 def listing(search: str | None = None, status: str | None = None, overdue: bool | int | str = 0,
 			with_debt: bool | int | str = 0, start: int = 0, limit: int = 50, tag: str | None = None,
-			due_soon: bool | int | str = 0) -> dict:
+			due_soon: bool | int | str = 0, no_doer: bool | int | str = 0) -> dict:
 	return service.listing(search=search, status=status, overdue=overdue, with_debt=with_debt,
-						   start=start, limit=limit, tag=tag, due_soon=due_soon)
+						   start=start, limit=limit, tag=tag, due_soon=due_soon, no_doer=no_doer)
 
 
 @frappe.whitelist(methods=["GET"])
