@@ -20,6 +20,7 @@ import 'package:korkem_flow/features/film_dept/presentation/film_orders_page.dar
 import 'package:korkem_flow/features/press_layout/data/press_layout_repository.dart';
 import 'package:korkem_flow/features/press_layout/domain/press_layout.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_editor.dart';
+import 'package:korkem_flow/features/press_layout/presentation/press_film_peek.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_map.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_panel.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_print.dart';
@@ -466,11 +467,44 @@ class _FilmCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              pressShortTitle(film, salesOrder),
-              key: ValueKey('pressTitle:${film.decor}'),
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w800,
+            // The title opens the film's card beside the layout (owner,
+            // 28.11.2026): on the shelf, held, on its way — no leaving.
+            Align(
+              alignment: Alignment.centerLeft,
+              child: InkWell(
+                key: ValueKey('pressFilmOpen:${film.decor}'),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+                onTap: switch (ref.watch(orderPressLayoutProvider(salesOrder))
+                    .value) {
+                  final layout? => () => showPressFilmPeek(
+                    context,
+                    film: film,
+                    layout: layout,
+                  ),
+                  null => null,
+                },
+                child: Tooltip(
+                  message: l10n.pressPeekTooltip,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          pressShortTitle(film, salesOrder),
+                          key: ValueKey('pressTitle:${film.decor}'),
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.xs),
+                      Icon(
+                        AppIcons.info,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: AppSpacing.sm),

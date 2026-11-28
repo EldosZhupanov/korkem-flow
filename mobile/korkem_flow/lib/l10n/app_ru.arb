@@ -4096,5 +4096,14 @@
   "mdfRowStageNoDoer": "{order}: {stage} готов. Кто делал — не указано",
   "mdfDoerSet": "Кто делал",
   "mdfFilterNoDoer": "Без исполнителя · {count}",
-  "mdfStageNoDoer": "кто?"
+  "mdfStageNoDoer": "кто?",
+  "pressPeekTooltip": "Карточка плёнки",
+  "pressPeekOrder": "Для этого заказа",
+  "pressPeekEnough": "Нужно {need} м · свободно {free} м — хватает",
+  "pressPeekShort": "Нужно {need} м · свободно {free} м — не хватает {lack} м",
+  "pressPeekHeld": "Отложено под этот заказ · {need} м",
+  "pressPeekShortHeld": "Не хватило {lack} м — стоит в «К заказу»",
+  "pressPeekRoll": "Рулон {roll} мм · стол {press} мм",
+  "pressPeekUnknown": "Такой плёнки нет в каталоге.",
+  "pressPeekWhere": "Где взять"
 }

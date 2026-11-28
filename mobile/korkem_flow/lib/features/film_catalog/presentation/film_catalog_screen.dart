@@ -2233,7 +2233,7 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
             const VerticalDivider(),
             SizedBox(
               width: AppSpacing.xxxl * 8,
-              child: _FilmSide(
+              child: FilmSide(
                 key: ValueKey('filmSide:${open.first.item}'),
                 group: fresh ?? open,
                 catalog: c,
@@ -2277,15 +2277,30 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
 /// A film's card beside the order's film window (owner, 19.11.2026): what
 /// is on the shelf and on its way, what it costs, how fast it goes — and its
 /// history; «Изменить» opens the full card, which keeps that history.
-class _FilmSide extends ConsumerStatefulWidget {
-  const _FilmSide({
+///
+/// Also beside the press layout (owner, 28.11.2026), with [header] — what
+/// this order takes of it — on top and no «Выбрать» ([picks] off).
+class FilmSide extends ConsumerStatefulWidget {
+  const FilmSide({
     required this.group,
     required this.catalog,
     required this.onClose,
     this.supplier,
     this.onPick,
+    this.picks = true,
+    this.header,
+    this.actions = const [],
     super.key,
   });
+
+  /// Shown first, above the film's own figures.
+  final Widget? header;
+
+  /// Whether «Выбрать» is offered at all.
+  final bool picks;
+
+  /// More buttons, before «Похожие».
+  final List<Widget> actions;
 
   /// The film in all its thicknesses.
   final List<Film> group;
@@ -2295,10 +2310,10 @@ class _FilmSide extends ConsumerStatefulWidget {
   final VoidCallback onClose;
 
   @override
-  ConsumerState<_FilmSide> createState() => _FilmSideState();
+  ConsumerState<FilmSide> createState() => _FilmSideState();
 }
 
-class _FilmSideState extends ConsumerState<_FilmSide> {
+class _FilmSideState extends ConsumerState<FilmSide> {
   bool _history = false;
 
   Future<void> _edit(Film film) async {
@@ -2488,7 +2503,13 @@ class _FilmSideState extends ConsumerState<_FilmSide> {
                 ? _FilmChanges(item: f.item)
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: about,
+                    children: [
+                      if (widget.header case final header?) ...[
+                        header,
+                        const SizedBox(height: AppSpacing.sm),
+                      ],
+                      ...about,
+                    ],
                   ),
           ),
         ),
@@ -2497,11 +2518,13 @@ class _FilmSideState extends ConsumerState<_FilmSide> {
           spacing: AppSpacing.xs,
           runSpacing: AppSpacing.xs,
           children: [
-            FilledButton(
-              key: const ValueKey('filmSidePick'),
-              onPressed: widget.onPick,
-              child: Text(l10n.fpkSidePick),
-            ),
+            if (widget.picks)
+              FilledButton(
+                key: const ValueKey('filmSidePick'),
+                onPressed: widget.onPick,
+                child: Text(l10n.fpkSidePick),
+              ),
+            ...widget.actions,
             OutlinedButton(
               key: const ValueKey('filmSideAnalogues'),
               onPressed: () => showAnalogues(
