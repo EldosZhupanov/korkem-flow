@@ -15,7 +15,16 @@
   "press_width_mm",
   "press_margin_mm",
   "press_gap_mm",
-  "press_sections"
+  "press_sections",
+  "saw_section",
+  "saw_saved",
+  "saw_kerf_mm",
+  "saw_trim_mm",
+  "saw_offcut_min_length_mm",
+  "saw_offcut_min_width_mm",
+  "saw_fence_side",
+  "saw_edge_deduct",
+  "saw_sheets"
  ],
  "fields": [
   {
@@ -84,11 +93,56 @@
    "fieldname": "press_sections",
    "fieldtype": "Small Text",
    "label": "Sections (JSON: film_m, length_mm)"
+  },
+  {
+   "fieldname": "saw_section",
+   "fieldtype": "Section Break",
+   "label": "Panel saw"
+  },
+  {
+   "fieldname": "saw_saved",
+   "fieldtype": "Check",
+   "label": "Saw settings saved"
+  },
+  {
+   "fieldname": "saw_kerf_mm",
+   "fieldtype": "Float",
+   "label": "Kerf, mm"
+  },
+  {
+   "fieldname": "saw_trim_mm",
+   "fieldtype": "Float",
+   "label": "Edge trim, mm"
+  },
+  {
+   "fieldname": "saw_offcut_min_length_mm",
+   "fieldtype": "Int",
+   "label": "Offcut from, mm"
+  },
+  {
+   "fieldname": "saw_offcut_min_width_mm",
+   "fieldtype": "Int",
+   "label": "Offcut from (other side), mm"
+  },
+  {
+   "fieldname": "saw_fence_side",
+   "fieldtype": "Data",
+   "label": "Fence side"
+  },
+  {
+   "fieldname": "saw_edge_deduct",
+   "fieldtype": "Check",
+   "label": "Take band thickness off the size"
+  },
+  {
+   "fieldname": "saw_sheets",
+   "fieldtype": "Small Text",
+   "label": "Sheets by thickness (JSON)"
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-10-29 03:00:00.000000",
+ "modified": "2026-11-28 17:00:00.000000",
  "modified_by": "Administrator",
  "module": "Korkem Manufacturing",
  "name": "Facade Material Norms",

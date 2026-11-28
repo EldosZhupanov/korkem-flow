@@ -1,0 +1,80 @@
+{
+ "actions": [],
+ "creation": "2026-11-28 17:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-28 17:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Manufacturing",
+ "owner": "Administrator",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "name": "Cutting Job Sheet",
+ "autoname": "hash",
+ "istable": 1,
+ "editable_grid": 1,
+ "field_order": [
+  "sheet_no",
+  "status",
+  "sawn_by",
+  "sawn_by_name",
+  "marked_by",
+  "sawn_at",
+  "defects",
+  "offcuts"
+ ],
+ "fields": [
+  {
+   "fieldname": "sheet_no",
+   "fieldtype": "Int",
+   "label": "Sheet",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Waiting\nDone",
+   "default": "Waiting",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "sawn_by",
+   "fieldtype": "Link",
+   "label": "Sawn by",
+   "options": "Employee",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "sawn_by_name",
+   "fieldtype": "Data",
+   "label": "Sawn by (name)"
+  },
+  {
+   "fieldname": "marked_by",
+   "fieldtype": "Link",
+   "label": "Marked by",
+   "options": "User"
+  },
+  {
+   "fieldname": "sawn_at",
+   "fieldtype": "Datetime",
+   "label": "Sawn at"
+  },
+  {
+   "fieldname": "defects",
+   "fieldtype": "Small Text",
+   "label": "Defects"
+  },
+  {
+   "fieldname": "offcuts",
+   "fieldtype": "Small Text",
+   "label": "Offcuts put on the shelf"
+  }
+ ],
+ "permissions": []
+}

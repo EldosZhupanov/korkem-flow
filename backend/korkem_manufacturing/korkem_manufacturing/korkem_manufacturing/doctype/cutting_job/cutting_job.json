@@ -1,0 +1,268 @@
+{
+ "actions": [],
+ "creation": "2026-11-28 17:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-28 17:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Manufacturing",
+ "owner": "Administrator",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "name": "Cutting Job",
+ "autoname": "format:Р-{####}",
+ "naming_rule": "Expression (old style)",
+ "track_changes": 1,
+ "field_order": [
+  "company",
+  "status",
+  "title",
+  "orders",
+  "due_date",
+  "material_item",
+  "material",
+  "thickness_mm",
+  "version",
+  "saw_section",
+  "sheet_height_mm",
+  "sheet_width_mm",
+  "kerf_mm",
+  "trim_mm",
+  "min_offcut_length_mm",
+  "min_offcut_width_mm",
+  "edge_deduct",
+  "fence_side",
+  "plan_section",
+  "choice",
+  "sheets_total",
+  "sheets_done",
+  "waste_pct",
+  "fences",
+  "parts_json",
+  "plan_json",
+  "people_section",
+  "made_by",
+  "checked_by",
+  "checked_at",
+  "cancel_reason",
+  "sheets"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nChecked\nCutting\nDone\nCancelled",
+   "default": "Draft",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Orders",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "orders",
+   "fieldtype": "Small Text",
+   "label": "Sales Orders (JSON)"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "label": "Due"
+  },
+  {
+   "fieldname": "material_item",
+   "fieldtype": "Link",
+   "label": "Material",
+   "options": "Item"
+  },
+  {
+   "fieldname": "material",
+   "fieldtype": "Data",
+   "label": "Material name",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "thickness_mm",
+   "fieldtype": "Float",
+   "label": "Thickness, mm"
+  },
+  {
+   "fieldname": "version",
+   "fieldtype": "Int",
+   "label": "Version",
+   "default": "1"
+  },
+  {
+   "fieldname": "saw_section",
+   "fieldtype": "Section Break",
+   "label": "Saw"
+  },
+  {
+   "fieldname": "sheet_height_mm",
+   "fieldtype": "Float",
+   "label": "Sheet height, mm"
+  },
+  {
+   "fieldname": "sheet_width_mm",
+   "fieldtype": "Float",
+   "label": "Sheet width, mm"
+  },
+  {
+   "fieldname": "kerf_mm",
+   "fieldtype": "Float",
+   "label": "Kerf, mm"
+  },
+  {
+   "fieldname": "trim_mm",
+   "fieldtype": "Float",
+   "label": "Edge trim, mm"
+  },
+  {
+   "fieldname": "min_offcut_length_mm",
+   "fieldtype": "Float",
+   "label": "Offcut from, mm"
+  },
+  {
+   "fieldname": "min_offcut_width_mm",
+   "fieldtype": "Float",
+   "label": "Offcut from (other side), mm"
+  },
+  {
+   "fieldname": "edge_deduct",
+   "fieldtype": "Check",
+   "label": "Band thickness taken off the size",
+   "default": "1"
+  },
+  {
+   "fieldname": "fence_side",
+   "fieldtype": "Data",
+   "label": "Fence side"
+  },
+  {
+   "fieldname": "plan_section",
+   "fieldtype": "Section Break",
+   "label": "Plan"
+  },
+  {
+   "fieldname": "choice",
+   "fieldtype": "Data",
+   "label": "Layout chosen"
+  },
+  {
+   "fieldname": "sheets_total",
+   "fieldtype": "Int",
+   "label": "Sheets",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "sheets_done",
+   "fieldtype": "Int",
+   "label": "Sheets sawn"
+  },
+  {
+   "fieldname": "waste_pct",
+   "fieldtype": "Float",
+   "label": "Waste, %"
+  },
+  {
+   "fieldname": "fences",
+   "fieldtype": "Int",
+   "label": "Fence settings"
+  },
+  {
+   "fieldname": "parts_json",
+   "fieldtype": "Long Text",
+   "label": "Parts (JSON)"
+  },
+  {
+   "fieldname": "plan_json",
+   "fieldtype": "Long Text",
+   "label": "Plan (JSON)"
+  },
+  {
+   "fieldname": "people_section",
+   "fieldtype": "Section Break",
+   "label": "People"
+  },
+  {
+   "fieldname": "made_by",
+   "fieldtype": "Link",
+   "label": "Made by",
+   "options": "User"
+  },
+  {
+   "fieldname": "checked_by",
+   "fieldtype": "Link",
+   "label": "Checked by",
+   "options": "User"
+  },
+  {
+   "fieldname": "checked_at",
+   "fieldtype": "Datetime",
+   "label": "Checked at"
+  },
+  {
+   "fieldname": "cancel_reason",
+   "fieldtype": "Small Text",
+   "label": "Why cancelled"
+  },
+  {
+   "fieldname": "sheets",
+   "fieldtype": "Table",
+   "label": "Sheets",
+   "options": "Cutting Job Sheet"
+  }
+ ],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "Manufacturing Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "Sales Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "Stock Manager",
+   "write": 1
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "Manufacturing User",
+   "write": 0
+  }
+ ]
+}
