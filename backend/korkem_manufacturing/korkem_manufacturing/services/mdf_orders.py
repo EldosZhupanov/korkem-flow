@@ -31,7 +31,7 @@ from __future__ import annotations
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 
 import frappe
-from frappe.utils import add_days, flt, getdate, nowdate
+from frappe.utils import add_days, add_months, flt, get_first_day, getdate, nowdate
 
 from korkem_manufacturing.services import (
 	audit,
@@ -768,6 +768,62 @@ def set_stage(order: str, stage: str, done=True, worker: str | None = None, crew
 	return card(order)
 
 
+def set_doer(order: str, stage: str, worker: str | None = None, crew=None) -> dict:
+	"""Who did a stage already ticked — said afterwards (owner, 28.11.2026: a
+	tick asks nothing; «Кто делал?» is answered when it can be, before the
+	month is paid). The date stays as it was ticked; nobody — the stage counts
+	for nobody again. Allowed on a handed-over order too: wages are paid after."""
+	facade_prices.ensure_editor()
+	doc = _accepted(order)
+	if stage not in STAGES:
+		frappe.throw(f"Этап «{stage}» не знаю.")
+	if not doc.get(STAGES[stage]):
+		frappe.throw(f"Этап «{STAGE_NAMES[stage]}» ещё не отмечен.")
+	from korkem_manufacturing.services import stage_crew
+
+	members: list[tuple[str, float]] = []
+	if crew:
+		members = stage_crew.parse(crew, doc.company)
+		worker = members[0][0]
+	elif worker:
+		if frappe.db.get_value("Employee", worker, "company") != doc.company:
+			frappe.throw("Такого сотрудника в компании нет.")
+		members = [(worker, 100.0)]
+	doc.db_set(STAGE_BY[stage], worker or None, update_modified=True)
+	stage_crew.put(doc.company, doc.name, stage, "by", members)
+	audit.record_audit(action="mdf.stage_doer", entity_type="Sales Order", entity_id=doc.name,
+					   diff={"stage": stage, "worker": worker or None,
+							 "crew": members if len(members) > 1 else None})
+	return card(doc.name)
+
+
+def doer_window() -> str:
+	"""Since when a tick with nobody named is still worth naming: the start
+	of last month — the month being paid and the one in work."""
+	return str(get_first_day(add_months(getdate(nowdate()), -1)))
+
+
+def without_doer(company: str) -> list[str]:
+	"""Orders with a stage ticked since `doer_window` and nobody named for it
+	(owner, 28.11.2026): the list to fill in before the month is paid."""
+	from korkem_manufacturing.services import stage_crew
+
+	since = doer_window()
+	rows = frappe.get_all(
+		"Sales Order",
+		filters={"company": company, "korkem_direction": directions.FACADES, "docstatus": 1},
+		or_filters={field: [">=", since] for field in STAGES.values()},
+		fields=["name", *STAGES.values(), *STAGE_BY.values()],
+		limit_page_length=0,
+	)
+	crews = stage_crew.of_orders([r.name for r in rows], "by")
+	return [
+		r.name for r in rows
+		if any(r.get(STAGES[s]) and str(r.get(STAGES[s])) >= since and not r.get(STAGE_BY[s])
+			   and not crews.get((r.name, s)) for s in STAGES)
+	]
+
+
 def _tick(order: str, stage: str, done=True, worker: str | None = None, crew=None) -> None:
 	"""The tick itself — whoever may make it has been asked already: the
 	manager (`set_stage`) or the worker, for his own stage (`my_work`)."""
@@ -1463,6 +1519,8 @@ def overview() -> dict:
 		"debt": owed["total"],
 		"debtors": len(owed["customers"]),
 		"bottleneck": bottleneck(rows),
+		# Stages ticked with nobody named, this month and last (owner, 28.11.2026).
+		"without_doer": len(without_doer(current_company())),
 	}
 
 
@@ -1511,10 +1569,11 @@ def bottleneck(rows) -> dict | None:
 
 
 def listing(search: str | None = None, status: str | None = None, overdue=False, with_debt=False,
-			start: int = 0, limit: int = 50, tag: str | None = None, due_soon=False) -> dict:
+			start: int = 0, limit: int = 50, tag: str | None = None, due_soon=False, no_doer=False) -> dict:
 	"""The list of MDF orders, newest first, a page at a time; urgent open ones first.
 
 	`tag` narrows to one tag — an order's (urgent, rework, …) or its customer's (vip, …).
+	`no_doer` — only those with a stage ticked and nobody named (`without_doer`).
 	Each row says where the order is: its stages with what is done, the stage
 	it waits at, the days left to its date, and the days it has stood ready.
 	"""
@@ -1544,7 +1603,10 @@ def listing(search: str | None = None, status: str | None = None, overdue=False,
 	fields = ["name", "docstatus", "transaction_date", "delivery_date", "customer", "customer_name",
 			  "grand_total", "advance_paid", "korkem_finish", "korkem_decor_top", "korkem_milling",
 			  "korkem_edge_profile", "korkem_ready_on", "korkem_handed_over_on", "korkem_hold_reason",
-			  "korkem_tags", "korkem_extra_stages", "korkem_coatings", *STAGES.values(), *STAGE_TO.values()]
+			  "korkem_tags", "korkem_extra_stages", "korkem_coatings", *STAGES.values(), *STAGE_TO.values(),
+			  *STAGE_BY.values()]
+	if directions.flag(no_doer):
+		filters["name"] = ["in", without_doer(company) or [""]]
 	if tag and tag not in mdf_tags.ORDER + mdf_tags.CUSTOMER:
 		frappe.throw(f"Метки «{tag}» нет.")
 	if tag in mdf_tags.ORDER:
@@ -1566,6 +1628,9 @@ def listing(search: str | None = None, status: str | None = None, overdue=False,
 	# Whom each stage is given to — a tick on the row's bar asks who did a
 	# stage given to nobody (owner, 26.11.2026). One query for the page.
 	crews_to = stage_crew.of_orders([r.name for r in rows], "to")
+	# Who did each ticked stage (owner, 28.11.2026): a tick no longer asks,
+	# so the row says which stages still have nobody named.
+	crews_by = stage_crew.of_orders([r.name for r in rows], "by")
 	out = []
 	for row in rows:
 		row_status = status_of(row)
@@ -1601,7 +1666,8 @@ def listing(search: str | None = None, status: str | None = None, overdue=False,
 				"debt": float(debt),
 				"stage": done[-1] if done else None,
 				"stages": [{"stage": s, "done": bool(row.get(STAGES[s])),
-							"given": bool(row.get(STAGE_TO[s]) or crews_to.get((row.name, s)))} for s in needed],
+							"given": bool(row.get(STAGE_TO[s]) or crews_to.get((row.name, s))),
+							"by": bool(row.get(STAGE_BY[s]) or crews_by.get((row.name, s)))} for s in needed],
 				"waiting": next((s for s in needed if not row.get(STAGES[s])), None) if open_ else None,
 				"days_left": (getdate(row.delivery_date) - getdate(nowdate())).days if open_ else None,
 				"ready_days": (getdate(nowdate()) - getdate(row.korkem_ready_on)).days

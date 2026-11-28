@@ -72,6 +72,36 @@ Map<String, Object?> _card({
   ],
 };
 
+/// A stage given to nobody (owner, 28.11.2026): the tick asks nothing.
+class _GivenToNobody extends _FakeRepository {
+  @override
+  Future<List<MdfOrderRow>> listing(MdfListQuery query) async {
+    queries.add(query);
+    return [
+      MdfOrderRow.fromJson(const {
+        'name': 'SAL-ORD-55',
+        'status': 'in_shop',
+        'created_on': '2026-11-20',
+        'delivery_date': '2026-12-02',
+        'customer_name': 'Жандос',
+        'area_m2': 2,
+        'total': 34000,
+        'paid': 0,
+        'debt': 34000,
+        'stage': 'mill',
+        'stages': [
+          {'stage': 'cut', 'done': true, 'by': true},
+          {'stage': 'mill', 'done': true, 'by': false},
+          {'stage': 'sand', 'done': false},
+          {'stage': 'vacuum', 'done': false},
+        ],
+        'waiting': 'sand',
+        'days_left': 4,
+      }),
+    ];
+  }
+}
+
 /// A film never received: no price, no work booked.
 class _Unpriced extends _FakeRepository {
   final priced = <(String, String, double)>[];
@@ -143,6 +173,7 @@ class _FakeRepository implements MdfOrderRepository {
       queueOrders: 1,
       queueM2: 1.77,
     ),
+    withoutDoer: 0,
   );
 
   static final _rows = [
@@ -1239,6 +1270,43 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('mdfBottleneckShow')));
     await tester.pumpAndSettle();
     expect(repo.queries.last.overdue, isTrue);
+  });
+
+  testWidgets('a stage given to nobody is ticked without asking who did it, '
+      'and «Кто делал» is offered beside «Отменить» (28.11.2026)', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(1600, 1200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = _GivenToNobody();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const MdfOrdersScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // The row knows which ticked stages have nobody named.
+    final rows = await repo.listing(repo.queries.last);
+    expect(
+      [for (final s in rows.single.stages) s.by],
+      [
+        true,
+        false,
+        false,
+        false,
+      ],
+    );
+    await tester.tap(find.byKey(const ValueKey('mdfBar:SAL-ORD-55:sand')));
+    await tester.pumpAndSettle();
+    // No «Кто сделал этот этап?» sheet: ticked straight away.
+    expect(find.byType(BottomSheet), findsNothing);
+    expect(repo.ticked, [(MdfStage.sand, true)]);
+    expect(find.byKey(const ValueKey('mdfStageDoneSnack')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mdfStageDoerAction')), findsOneWidget);
+    expect(find.text('Undo'), findsOneWidget);
   });
 
   testWidgets('the list shows an overdue order and its debt', (tester) async {

@@ -13714,4 +13714,25 @@ class AppLocalizationsKk extends AppLocalizations {
   String filmReportThin(String film, String margin, String limit) {
     return '«$film» $margin/м үстемемен сатылады — $limit төмен. Бөлшек бағасын тексеріңіз.';
   }
+
+  @override
+  String mdfRowStageDoneWho(String order, String stage, String who) {
+    return '$order: $stage дайын — $who';
+  }
+
+  @override
+  String mdfRowStageNoDoer(String order, String stage) {
+    return '$order: $stage дайын. Кім жасады — көрсетілмеген';
+  }
+
+  @override
+  String get mdfDoerSet => 'Кім жасады';
+
+  @override
+  String mdfFilterNoDoer(String count) {
+    return 'Орындаушысыз · $count';
+  }
+
+  @override
+  String get mdfStageNoDoer => 'кім?';
 }

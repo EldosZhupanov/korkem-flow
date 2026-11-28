@@ -51,6 +51,10 @@ enum _Filter {
   vip,
   furnitureMaker,
   rework,
+
+  /// A stage ticked with nobody named (owner, 28.11.2026) — shown only
+  /// while there are some.
+  noDoer,
 }
 
 class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
@@ -91,7 +95,12 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
 
   /// A stage on the row's bar tapped (owner, 26.11.2026, variant Б): not
   /// done — ticked, and the ones before it with it if asked; done — the
-  /// tick taken off, asked first. Given to nobody — who did it is asked.
+  /// tick taken off, asked first.
+  ///
+  /// Who did it is never asked first (owner, 28.11.2026: «чтобы он не
+  /// просил»): the server names the one it is given to, or the only person
+  /// on its post. When it cannot, the snack bar says so and «Кто делал»
+  /// names him — or the stage waits in «Без исполнителя».
   Future<void> _tapStage(
     MdfOrderRow row,
     MdfStage stage, {
@@ -138,45 +147,57 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
       if (!sure) return;
     }
     final ticked = <MdfStage>[];
+    MdfOrder? card;
     try {
       for (final s in ticks) {
-        MdfCrewPick? pick;
-        if (!s.given) {
-          if (!mounted) return;
-          pick = await pickMdfCrew(
-            context,
-            '${row.name} · ${mdfStageLabel(s.stage, l10n)}',
-            order: row.name,
-            stage: s.stage,
-            areaM2: row.areaM2,
-          );
-          if (pick == null) break;
-        }
-        await repo.setStage(
-          row.name,
-          s.stage,
-          done: true,
-          worker: pick?.single,
-          crew: pick?.crew,
-        );
+        card = await repo.setStage(row.name, s.stage, done: true);
         ticked.add(s.stage);
       }
     } on Object catch (error) {
       messenger.showFailure(error, l10n);
     }
     refresh();
-    if (ticked.isEmpty) return;
+    if (ticked.isEmpty || !mounted) return;
+    final names = [for (final t in ticked) mdfStageLabel(t, l10n)].join(', ');
+    // The stages the server could name nobody for.
+    final nobody = [
+      for (final t in ticked)
+        if (card?.stageWorkers[t] == null) t,
+    ];
+    final who = {for (final t in ticked) ?card?.stageWorkers[t]};
+    final doerColour = Theme.of(context).colorScheme.inversePrimary;
     messenger.showSnackBar(
       SnackBar(
         key: const ValueKey('mdfStageDoneSnack'),
         // With an action a snack bar stays until closed (Flutter 3.38+):
         // it would follow the person to every screen (owner, 27.11.2026).
         persist: false,
-        content: Text(
-          l10n.mdfRowStageDone(
-            row.name,
-            [for (final t in ticked) mdfStageLabel(t, l10n)].join(', '),
-          ),
+        content: Row(
+          children: [
+            Expanded(
+              child: Text(
+                nobody.isNotEmpty
+                    ? l10n.mdfRowStageNoDoer(row.name, names)
+                    : who.isEmpty
+                    ? l10n.mdfRowStageDone(row.name, names)
+                    : l10n.mdfRowStageDoneWho(row.name, names, who.join(', ')),
+              ),
+            ),
+            // «Кто делал» next to «Отменить» — a tick can always be taken
+            // back (owner, 28.11.2026: «бывают разные моменты»).
+            if (nobody.isNotEmpty)
+              TextButton(
+                key: const ValueKey('mdfStageDoerAction'),
+                style: TextButton.styleFrom(
+                  foregroundColor: doerColour,
+                ),
+                onPressed: () {
+                  messenger.hideCurrentSnackBar();
+                  unawaited(_nameDoers(row, nobody));
+                },
+                child: Text(l10n.mdfDoerSet),
+              ),
+          ],
         ),
         action: SnackBarAction(
           label: l10n.mdfRowUndo,
@@ -189,6 +210,34 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
         ),
       ),
     );
+  }
+
+  /// «Кто делал» from the snack bar: one sheet for all the stages just
+  /// ticked with nobody named — the same people mostly do them together.
+  Future<void> _nameDoers(MdfOrderRow row, List<MdfStage> stages) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    final repo = ref.read(mdfOrderRepositoryProvider);
+    final names = [for (final s in stages) mdfStageLabel(s, l10n)].join(', ');
+    final pick = await pickMdfCrew(
+      context,
+      '${row.name} · $names',
+      order: row.name,
+      stage: stages.first,
+      areaM2: row.areaM2,
+    );
+    if (pick == null || pick.members.isEmpty) return;
+    try {
+      for (final s in stages) {
+        await repo.setDoer(row.name, s, pick.single, crew: pick.crew);
+      }
+    } on Object catch (error) {
+      messenger.showFailure(error, l10n);
+    }
+    ref
+      ..invalidate(mdfOrdersProvider)
+      ..invalidate(mdfOverviewProvider)
+      ..invalidate(mdfOrderProvider(row.name));
   }
 
   Future<bool> _confirm(String text, String yes, {required String key}) async =>
@@ -238,6 +287,7 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
     overdue: _filter == _Filter.overdue,
     withDebt: _filter == _Filter.debt,
     dueSoon: _filter == _Filter.dueSoon,
+    noDoer: _filter == _Filter.noDoer,
     tag: switch (_filter) {
       _Filter.urgent => MdfOrderTag.urgent.wire,
       _Filter.vip => MdfCustomerTag.vip.wire,
@@ -310,6 +360,7 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
       _Filter.vip => l10n.mdfTagVip,
       _Filter.furnitureMaker => l10n.mdfFilterFurnitureMakers,
       _Filter.rework => l10n.mdfFilterRework,
+      _Filter.noDoer => l10n.mdfFilterNoDoer('${overview?.withoutDoer ?? 0}'),
     };
     return Scaffold(
       appBar: AppBar(
@@ -447,15 +498,18 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
               children: [
                 for (final f in _Filter.values)
-                  Padding(
-                    padding: const EdgeInsets.only(right: AppSpacing.sm),
-                    child: ChoiceChip(
-                      key: ValueKey('mdfFilter:${f.name}'),
-                      label: Text(label(f)),
-                      selected: _filter == f,
-                      onSelected: (_) => setState(() => _filter = f),
+                  if (f != _Filter.noDoer ||
+                      _filter == f ||
+                      (overview?.withoutDoer ?? 0) > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(right: AppSpacing.sm),
+                      child: ChoiceChip(
+                        key: ValueKey('mdfFilter:${f.name}'),
+                        label: Text(label(f)),
+                        selected: _filter == f,
+                        onSelected: (_) => setState(() => _filter = f),
+                      ),
                     ),
-                  ),
               ],
             ),
           ),
@@ -733,7 +787,7 @@ class _StageBar extends StatelessWidget {
     final theme = Theme.of(context);
     final status = context.statusColors;
     final tap = row.status == MdfStatus.onHold ? null : onStage;
-    Color colour(({MdfStage stage, bool done, bool given}) s) => s.done
+    Color colour(({MdfStage stage, bool done, bool given, bool by}) s) => s.done
         ? status.success
         : s.stage == row.waiting
         ? status.info

@@ -23409,6 +23409,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'«{film}» sells at {margin}/m margin — under {limit}. Check its retail price.'**
   String filmReportThin(String film, String margin, String limit);
+
+  /// No description provided for @mdfRowStageDoneWho.
+  ///
+  /// In en, this message translates to:
+  /// **'{order}: {stage} done — {who}'**
+  String mdfRowStageDoneWho(String order, String stage, String who);
+
+  /// No description provided for @mdfRowStageNoDoer.
+  ///
+  /// In en, this message translates to:
+  /// **'{order}: {stage} done. Who did it is not set'**
+  String mdfRowStageNoDoer(String order, String stage);
+
+  /// No description provided for @mdfDoerSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Who did it'**
+  String get mdfDoerSet;
+
+  /// No description provided for @mdfFilterNoDoer.
+  ///
+  /// In en, this message translates to:
+  /// **'No one named · {count}'**
+  String mdfFilterNoDoer(String count);
+
+  /// No description provided for @mdfStageNoDoer.
+  ///
+  /// In en, this message translates to:
+  /// **'who?'**
+  String get mdfStageNoDoer;
 }
 
 class _AppLocalizationsDelegate

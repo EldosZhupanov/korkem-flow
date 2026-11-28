@@ -3066,6 +3066,32 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
     );
   }
 
+  /// «Кто делал» on a ticked stage: named or changed afterwards, its date
+  /// as it was (owner, 28.11.2026).
+  Future<void> _doer(MdfStage stage) async {
+    final l10n = AppLocalizations.of(context);
+    final pick = await pickMdfCrew(
+      context,
+      '${o.name} · ${mdfStageLabel(stage, l10n)}',
+      order: o.name,
+      stage: stage,
+      areaM2: o.areaM2,
+      positions: [
+        for (final (i, l) in o.lines.indexed)
+          (
+            label: '${i + 1} · ${l.heightMm}×${l.widthMm} ×${l.qty}',
+            m2: l.areaM2,
+          ),
+      ],
+    );
+    if (pick == null || !mounted) return;
+    await _run(
+      () => ref
+          .read(mdfOrderRepositoryProvider)
+          .setDoer(o.name, stage, pick.single, crew: pick.crew),
+    );
+  }
+
   Future<String?> _ask(String title, String label, AppLocalizations l10n) =>
       showReasonDialog(
         context,
@@ -3472,20 +3498,30 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                 label: Text(
                   [
                     mdfStageLabel(stage, l10n),
-                    if (doneOn != null) mdfDay(doneOn, year: false),
-                    ?o.stageWorkers[stage],
+                    if (doneOn != null) ...[
+                      mdfDay(doneOn, year: false),
+                      // A tick asks nobody (owner, 28.11.2026): «кто?»
+                      // until someone is named.
+                      o.stageWorkers[stage] ?? l10n.mdfStageNoDoer,
+                    ],
                   ].join(' · '),
                 ),
                 selected: doneOn != null,
                 onSelected: !open || _busy || o.status == MdfStatus.onHold
                     ? null
                     : (v) => _run(() => repo.setStage(o.name, stage, done: v)),
+                // Ticked: who did it, said or changed — the date stays;
+                // handed over too, wages are paid after (owner, 28.11.2026).
                 // A stage added for a rework goes again while unticked.
-                onDeleted:
-                    open &&
-                        !_busy &&
-                        doneOn == null &&
-                        o.extraStages.contains(stage)
+                deleteIcon: doneOn != null ? const Icon(AppIcons.team) : null,
+                deleteButtonTooltipMessage: doneOn != null
+                    ? l10n.mdfDoerSet
+                    : null,
+                onDeleted: doneOn != null
+                    ? (o.status == MdfStatus.cancelled || _busy
+                          ? null
+                          : () => _doer(stage))
+                    : open && !_busy && o.extraStages.contains(stage)
                     ? () => _run(
                         () => repo.extraStage(o.name, stage, on: false),
                       )

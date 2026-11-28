@@ -12060,5 +12060,40 @@
         "type": "String"
       }
     }
-  }
+  },
+  "mdfRowStageDoneWho": "{order}: {stage} done — {who}",
+  "@mdfRowStageDoneWho": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      },
+      "stage": {
+        "type": "String"
+      },
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfRowStageNoDoer": "{order}: {stage} done. Who did it is not set",
+  "@mdfRowStageNoDoer": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      },
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfDoerSet": "Who did it",
+  "mdfFilterNoDoer": "No one named · {count}",
+  "@mdfFilterNoDoer": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfStageNoDoer": "who?"
 }

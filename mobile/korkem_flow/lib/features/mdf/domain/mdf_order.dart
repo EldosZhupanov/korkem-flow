@@ -95,6 +95,10 @@ typedef MdfOverview = ({
   double debt,
   int debtors,
   MdfBottleneck? bottleneck,
+
+  /// Orders with a stage ticked, this month or last, and nobody named for
+  /// it (owner, 28.11.2026) — to fill in before the month is paid.
+  int withoutDoer,
 });
 
 /// «Узкое место» (owner, 26.11.2026): the stage most late orders wait at,
@@ -160,6 +164,7 @@ class MdfOrderRow {
               stage: stage,
               done: s['done'] == true,
               given: s['given'] == true,
+              by: s['by'] == true,
             ),
     ],
     waiting: MdfStage.parse(json['waiting']),
@@ -179,8 +184,9 @@ class MdfOrderRow {
   final bool dueSoon;
 
   /// Its stages in the shop's order, with what is done — the row's bar —
-  /// and whether each is given to someone (a tick asks who, if not).
-  final List<({MdfStage stage, bool done, bool given})> stages;
+  /// whether each is given to someone, and, ticked, whether anyone is named
+  /// as having done it (owner, 28.11.2026: a tick no longer asks).
+  final List<({MdfStage stage, bool done, bool given, bool by})> stages;
 
   /// The stage it waits at now; null when not in the shop.
   final MdfStage? waiting;

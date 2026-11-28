@@ -13792,4 +13792,25 @@ class AppLocalizationsRu extends AppLocalizations {
   String filmReportThin(String film, String margin, String limit) {
     return '«$film» продаётся с маржой $margin/м — ниже $limit. Проверьте розничную цену.';
   }
+
+  @override
+  String mdfRowStageDoneWho(String order, String stage, String who) {
+    return '$order: $stage готов — $who';
+  }
+
+  @override
+  String mdfRowStageNoDoer(String order, String stage) {
+    return '$order: $stage готов. Кто делал — не указано';
+  }
+
+  @override
+  String get mdfDoerSet => 'Кто делал';
+
+  @override
+  String mdfFilterNoDoer(String count) {
+    return 'Без исполнителя · $count';
+  }
+
+  @override
+  String get mdfStageNoDoer => 'кто?';
 }

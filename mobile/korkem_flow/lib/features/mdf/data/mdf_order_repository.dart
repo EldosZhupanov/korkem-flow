@@ -39,6 +39,9 @@ typedef MdfListQuery = ({
 
   /// An order's tag code (urgent, rework) or a customer's (vip …).
   String? tag,
+
+  /// A stage ticked with nobody named (owner, 28.11.2026).
+  bool noDoer,
 });
 
 // AutoDisposeFutureProviderFamily is not exported as a public type.
@@ -202,6 +205,7 @@ class MdfOrderRepository {
       debt: n('debt').toDouble(),
       debtors: n('debtors').toInt(),
       bottleneck: _bottleneck(data['bottleneck']),
+      withoutDoer: n('without_doer').toInt(),
     );
   }
 
@@ -232,6 +236,7 @@ class MdfOrderRepository {
           if (query.overdue) 'overdue': 1,
           if (query.withDebt) 'with_debt': 1,
           if (query.dueSoon) 'due_soon': 1,
+          if (query.noDoer) 'no_doer': 1,
           'tag': ?query.tag,
         },
       ),
@@ -576,6 +581,21 @@ class MdfOrderRepository {
     'stage': stage.name,
     'done': done ? 1 : 0,
     'worker': ?worker,
+    if (crew != null && crew.length > 1)
+      'crew': jsonEncode([for (final m in crew) m.toJson()]),
+  });
+
+  /// Who did a stage already ticked — said afterwards; its date stays
+  /// (owner, 28.11.2026). Nobody — the stage counts for nobody again.
+  Future<MdfOrder> setDoer(
+    String order,
+    MdfStage stage,
+    String? worker, {
+    List<MdfCrewMember>? crew,
+  }) => _post('set_doer', {
+    'order': order,
+    'stage': stage.name,
+    'worker': worker ?? '',
     if (crew != null && crew.length > 1)
       'crew': jsonEncode([for (final m in crew) m.toJson()]),
   });

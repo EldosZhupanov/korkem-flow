@@ -4091,5 +4091,10 @@
   "filmTeamAvgSale": "орташа чек {amount}",
   "filmTeamBonusMore": "+100 м → +{amount}",
   "filmTeamOwedSales": "клиенттерінің қарызы {amount} · сатылым: {count}",
-  "filmReportThin": "«{film}» {margin}/м үстемемен сатылады — {limit} төмен. Бөлшек бағасын тексеріңіз."
+  "filmReportThin": "«{film}» {margin}/м үстемемен сатылады — {limit} төмен. Бөлшек бағасын тексеріңіз.",
+  "mdfRowStageDoneWho": "{order}: {stage} дайын — {who}",
+  "mdfRowStageNoDoer": "{order}: {stage} дайын. Кім жасады — көрсетілмеген",
+  "mdfDoerSet": "Кім жасады",
+  "mdfFilterNoDoer": "Орындаушысыз · {count}",
+  "mdfStageNoDoer": "кім?"
 }
