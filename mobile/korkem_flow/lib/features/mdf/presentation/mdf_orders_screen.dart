@@ -500,14 +500,14 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
                       _filter == f ||
                       (overview?.withoutDoer ?? 0) > 0)
                     Padding(
-                    padding: const EdgeInsets.only(right: AppSpacing.sm),
-                    child: ChoiceChip(
-                      key: ValueKey('mdfFilter:${f.name}'),
-                      label: Text(label(f)),
-                      selected: _filter == f,
-                      onSelected: (_) => setState(() => _filter = f),
+                      padding: const EdgeInsets.only(right: AppSpacing.sm),
+                      child: ChoiceChip(
+                        key: ValueKey('mdfFilter:${f.name}'),
+                        label: Text(label(f)),
+                        selected: _filter == f,
+                        onSelected: (_) => setState(() => _filter = f),
+                      ),
                     ),
-                  ),
               ],
             ),
           ),

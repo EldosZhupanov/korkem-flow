@@ -3521,9 +3521,7 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                     ? (o.status == MdfStatus.cancelled || _busy
                           ? null
                           : () => _doer(stage))
-                    : open &&
-                          !_busy &&
-                          o.extraStages.contains(stage)
+                    : open && !_busy && o.extraStages.contains(stage)
                     ? () => _run(
                         () => repo.extraStage(o.name, stage, on: false),
                       )

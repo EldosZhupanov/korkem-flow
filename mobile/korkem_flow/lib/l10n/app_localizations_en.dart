@@ -13756,4 +13756,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String filmReportThin(String film, String margin, String limit) {
     return '«$film» sells at $margin/m margin — under $limit. Check its retail price.';
   }
+
+  @override
+  String mdfRowStageDoneWho(String order, String stage, String who) {
+    return '$order: $stage done — $who';
+  }
+
+  @override
+  String mdfRowStageNoDoer(String order, String stage) {
+    return '$order: $stage done. Who did it is not set';
+  }
+
+  @override
+  String get mdfDoerSet => 'Who did it';
+
+  @override
+  String mdfFilterNoDoer(String count) {
+    return 'No one named · $count';
+  }
+
+  @override
+  String get mdfStageNoDoer => 'who?';
 }

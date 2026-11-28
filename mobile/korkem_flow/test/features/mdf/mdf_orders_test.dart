@@ -1290,12 +1290,15 @@ void main() {
     await tester.pumpAndSettle();
     // The row knows which ticked stages have nobody named.
     final rows = await repo.listing(repo.queries.last);
-    expect([for (final s in rows.single.stages) s.by], [
-      true,
-      false,
-      false,
-      false,
-    ]);
+    expect(
+      [for (final s in rows.single.stages) s.by],
+      [
+        true,
+        false,
+        false,
+        false,
+      ],
+    );
     await tester.tap(find.byKey(const ValueKey('mdfBar:SAL-ORD-55:sand')));
     await tester.pumpAndSettle();
     // No «Кто сделал этот этап?» sheet: ticked straight away.
