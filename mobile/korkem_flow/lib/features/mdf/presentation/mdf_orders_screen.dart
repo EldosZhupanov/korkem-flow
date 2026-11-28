@@ -787,8 +787,7 @@ class _StageBar extends StatelessWidget {
     final theme = Theme.of(context);
     final status = context.statusColors;
     final tap = row.status == MdfStatus.onHold ? null : onStage;
-    Color colour(({MdfStage stage, bool done, bool given, bool by}) s) =>
-        s.done
+    Color colour(({MdfStage stage, bool done, bool given, bool by}) s) => s.done
         ? status.success
         : s.stage == row.waiting
         ? status.info
