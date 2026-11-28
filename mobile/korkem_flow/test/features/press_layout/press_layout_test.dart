@@ -280,8 +280,8 @@ void main() {
     expect(before.lack, closeTo(1.6, 1e-9));
     final launched = OrderPressLayout.fromJson({
       ..._layout(),
-      'approved': {'by': 'Олжас', 'at': '2026-11-12 15:40'},
-      'short': [
+      'approved': const {'by': 'Олжас', 'at': '2026-11-12 15:40'},
+      'short': const [
         {'decor': 'ZB 852-2 Авори', 'item': 'F-1', 'short_m': 1.0},
       ],
     });
