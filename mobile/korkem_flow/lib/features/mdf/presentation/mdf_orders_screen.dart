@@ -157,7 +157,7 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
       messenger.showFailure(error, l10n);
     }
     refresh();
-    if (ticked.isEmpty) return;
+    if (ticked.isEmpty || !mounted) return;
     final names = [for (final t in ticked) mdfStageLabel(t, l10n)].join(', ');
     // The stages the server could name nobody for.
     final nobody = [
@@ -165,6 +165,7 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
         if (card?.stageWorkers[t] == null) t,
     ];
     final who = {for (final t in ticked) ?card?.stageWorkers[t]};
+    final doerColour = Theme.of(context).colorScheme.inversePrimary;
     messenger.showSnackBar(
       SnackBar(
         key: const ValueKey('mdfStageDoneSnack'),
@@ -188,7 +189,7 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
               TextButton(
                 key: const ValueKey('mdfStageDoerAction'),
                 style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.inversePrimary,
+                  foregroundColor: doerColour,
                 ),
                 onPressed: () {
                   messenger.hideCurrentSnackBar();
@@ -217,9 +218,10 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context);
     final repo = ref.read(mdfOrderRepositoryProvider);
+    final names = [for (final s in stages) mdfStageLabel(s, l10n)].join(', ');
     final pick = await pickMdfCrew(
       context,
-      '${row.name} · ${[for (final s in stages) mdfStageLabel(s, l10n)].join(', ')}',
+      '${row.name} · $names',
       order: row.name,
       stage: stages.first,
       areaM2: row.areaM2,
@@ -785,7 +787,8 @@ class _StageBar extends StatelessWidget {
     final theme = Theme.of(context);
     final status = context.statusColors;
     final tap = row.status == MdfStatus.onHold ? null : onStage;
-    Color colour(({MdfStage stage, bool done, bool given}) s) => s.done
+    Color colour(({MdfStage stage, bool done, bool given, bool by}) s) =>
+        s.done
         ? status.success
         : s.stage == row.waiting
         ? status.info
