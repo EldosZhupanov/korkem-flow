@@ -93,7 +93,8 @@ class _JobBodyState extends ConsumerState<_JobBody> {
     for (final p in widget.job?.parts ?? const <SawPart>[]) SawPartRow(p),
     if ((widget.job?.parts ?? const []).isEmpty) SawPartRow(),
   ];
-  late String? _material = widget.job?.materialItem ??
+  late String? _material =
+      widget.job?.materialItem ??
       (widget.materials.length == 1 ? widget.materials.first.item : null);
   late String _choice = widget.job?.choice ?? 'best';
   SawCalculation? _calc;
@@ -189,7 +190,9 @@ class _JobBodyState extends ConsumerState<_JobBody> {
             name: _job?.name,
             materialItem: _material!,
             parts: _parts,
-            orders: [for (final o in _job?.orders ?? const <JobOrder>[]) o.order],
+            orders: [
+              for (final o in _job?.orders ?? const <JobOrder>[]) o.order,
+            ],
             choice: choice ?? _choice,
           );
       ref.invalidate(sawJournalProvider);
@@ -579,8 +582,7 @@ class _Header extends StatelessWidget {
       children: [
         SawStatusChip(status: job.status),
         Text(l10n.sawVersion(job.version), style: theme.textTheme.bodySmall),
-        if (job.dueDate != null)
-          Text(due, style: TextStyle(color: dueColour)),
+        if (job.dueDate != null) Text(due, style: TextStyle(color: dueColour)),
         Text(job.material, style: theme.textTheme.bodyMedium),
         if (people.isNotEmpty)
           Text(people.join(' · '), style: theme.textTheme.bodySmall),
@@ -829,7 +831,12 @@ class _SheetCard extends StatelessWidget {
   }
 }
 
-String _cutLine(AppLocalizations l10n, List<SawCut> cuts, int i, NumberFormat mm) {
+String _cutLine(
+  AppLocalizations l10n,
+  List<SawCut> cuts,
+  int i,
+  NumberFormat mm,
+) {
   final cut = cuts[i];
   final same = cut.kind != SawCutKind.trim && sawSameFence(cuts, i);
   final tail = same ? ' · ${l10n.sawSameFence}' : '';
@@ -955,8 +962,7 @@ class _ImportCheck extends StatelessWidget {
         child: ListView(
           shrinkWrap: true,
           children: [
-            for (final p in parsed.rows.take(30))
-              Text(_importLine(p)),
+            for (final p in parsed.rows.take(30)) Text(_importLine(p)),
             if (parsed.rows.length > 30) const Text('…'),
             if (parsed.errors.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.md),

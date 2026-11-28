@@ -23493,6 +23493,762 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Where to get it'**
   String get pressPeekWhere;
+
+  /// No description provided for @sawTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cutting'**
+  String get sawTitle;
+
+  /// No description provided for @sawNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New cutting job'**
+  String get sawNew;
+
+  /// No description provided for @sawSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saw: kerf, trim, sheets'**
+  String get sawSettingsTitle;
+
+  /// No description provided for @sawSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search: customer, order, Р-number, QR'**
+  String get sawSearchHint;
+
+  /// No description provided for @sawFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get sawFilterAll;
+
+  /// No description provided for @sawFilterCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'To check'**
+  String get sawFilterCheck;
+
+  /// No description provided for @sawFilterCutting.
+  ///
+  /// In en, this message translates to:
+  /// **'Being cut'**
+  String get sawFilterCutting;
+
+  /// No description provided for @sawFilterDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Cut'**
+  String get sawFilterDone;
+
+  /// No description provided for @sawStatusDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'To check'**
+  String get sawStatusDraft;
+
+  /// No description provided for @sawStatusChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to cut'**
+  String get sawStatusChecked;
+
+  /// No description provided for @sawStatusCutting.
+  ///
+  /// In en, this message translates to:
+  /// **'Being cut'**
+  String get sawStatusCutting;
+
+  /// No description provided for @sawStatusDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Cut'**
+  String get sawStatusDone;
+
+  /// No description provided for @sawStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get sawStatusCancelled;
+
+  /// No description provided for @sawEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No cutting jobs yet'**
+  String get sawEmpty;
+
+  /// No description provided for @sawEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the parts — they are laid out on sheets and the cuts counted.'**
+  String get sawEmptyHint;
+
+  /// No description provided for @sawToday.
+  ///
+  /// In en, this message translates to:
+  /// **'today'**
+  String get sawToday;
+
+  /// No description provided for @sawTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'tomorrow'**
+  String get sawTomorrow;
+
+  /// No description provided for @sawOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'overdue'**
+  String get sawOverdue;
+
+  /// No description provided for @sawSheetsOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} sheets'**
+  String sawSheetsOf(int done, int total);
+
+  /// No description provided for @sawWaste.
+  ///
+  /// In en, this message translates to:
+  /// **'waste {pct}%'**
+  String sawWaste(int pct);
+
+  /// No description provided for @sawTogether.
+  ///
+  /// In en, this message translates to:
+  /// **'{jobs} on {material} can be cut together: {together} sheets instead of {apart}'**
+  String sawTogether(String jobs, String material, int together, int apart);
+
+  /// No description provided for @sawTogetherAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge'**
+  String get sawTogetherAction;
+
+  /// No description provided for @sawMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get sawMaterial;
+
+  /// No description provided for @sawPickMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the material.'**
+  String get sawPickMaterial;
+
+  /// No description provided for @sawNoMaterials.
+  ///
+  /// In en, this message translates to:
+  /// **'No sheet material with a thickness in stock — add one in «Stock».'**
+  String get sawNoMaterials;
+
+  /// No description provided for @sawColNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No.'**
+  String get sawColNo;
+
+  /// No description provided for @sawColHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get sawColHeight;
+
+  /// No description provided for @sawColWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Width'**
+  String get sawColWidth;
+
+  /// No description provided for @sawColQty.
+  ///
+  /// In en, this message translates to:
+  /// **'Qty'**
+  String get sawColQty;
+
+  /// No description provided for @sawColEdge.
+  ///
+  /// In en, this message translates to:
+  /// **'Edge'**
+  String get sawColEdge;
+
+  /// No description provided for @sawColRotate.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn'**
+  String get sawColRotate;
+
+  /// No description provided for @sawColName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get sawColName;
+
+  /// No description provided for @sawPartDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Part {n}'**
+  String sawPartDefault(int n);
+
+  /// No description provided for @sawAddPart.
+  ///
+  /// In en, this message translates to:
+  /// **'Part'**
+  String get sawAddPart;
+
+  /// No description provided for @sawPaste.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste'**
+  String get sawPaste;
+
+  /// No description provided for @sawFromFile.
+  ///
+  /// In en, this message translates to:
+  /// **'From a file'**
+  String get sawFromFile;
+
+  /// No description provided for @sawPasteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste rows: height, width, quantity, name'**
+  String get sawPasteTitle;
+
+  /// No description provided for @sawPasteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'716 596 2 Side'**
+  String get sawPasteHint;
+
+  /// No description provided for @sawImportRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Rows read: {count}'**
+  String sawImportRead(int count);
+
+  /// No description provided for @sawImportReadAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get sawImportReadAction;
+
+  /// No description provided for @sawImportProblems.
+  ///
+  /// In en, this message translates to:
+  /// **'Not read:'**
+  String get sawImportProblems;
+
+  /// No description provided for @sawImportAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get sawImportAdd;
+
+  /// No description provided for @sawProblemNoSize.
+  ///
+  /// In en, this message translates to:
+  /// **'no sizes'**
+  String get sawProblemNoSize;
+
+  /// No description provided for @sawProblemNoWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'no width'**
+  String get sawProblemNoWidth;
+
+  /// No description provided for @sawProblemSize.
+  ///
+  /// In en, this message translates to:
+  /// **'size 0 or over 5 m'**
+  String get sawProblemSize;
+
+  /// No description provided for @sawProblemQty.
+  ///
+  /// In en, this message translates to:
+  /// **'quantity from 1 to 1000'**
+  String get sawProblemQty;
+
+  /// No description provided for @sawEnterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter in «Qty» — a new row · tap a side — edge none → 0.4 → 2 mm'**
+  String get sawEnterHint;
+
+  /// No description provided for @sawPartsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} parts'**
+  String sawPartsCount(int count);
+
+  /// No description provided for @sawEdgeMetres.
+  ///
+  /// In en, this message translates to:
+  /// **'edge {thickness} mm: {metres} m'**
+  String sawEdgeMetres(String thickness, String metres);
+
+  /// No description provided for @sawEdgeNone.
+  ///
+  /// In en, this message translates to:
+  /// **'no edge'**
+  String get sawEdgeNone;
+
+  /// No description provided for @sawEdgeTop.
+  ///
+  /// In en, this message translates to:
+  /// **'top'**
+  String get sawEdgeTop;
+
+  /// No description provided for @sawEdgeBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'bottom'**
+  String get sawEdgeBottom;
+
+  /// No description provided for @sawEdgeLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'left'**
+  String get sawEdgeLeft;
+
+  /// No description provided for @sawEdgeRight.
+  ///
+  /// In en, this message translates to:
+  /// **'right'**
+  String get sawEdgeRight;
+
+  /// No description provided for @sawCalculate.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate'**
+  String get sawCalculate;
+
+  /// No description provided for @sawSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get sawSave;
+
+  /// No description provided for @sawSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Cutting job saved'**
+  String get sawSaved;
+
+  /// No description provided for @sawFillAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in the height and width of every part.'**
+  String get sawFillAll;
+
+  /// No description provided for @sawChoiceBest.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get sawChoiceBest;
+
+  /// No description provided for @sawChoiceFences.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer fence settings'**
+  String get sawChoiceFences;
+
+  /// No description provided for @sawChoiceOffcut.
+  ///
+  /// In en, this message translates to:
+  /// **'Larger offcut'**
+  String get sawChoiceOffcut;
+
+  /// No description provided for @sawChoiceLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{sheets} sh. · fence {fences}× · waste {waste}%'**
+  String sawChoiceLine(int sheets, int fences, int waste);
+
+  /// No description provided for @sawTooBig.
+  ///
+  /// In en, this message translates to:
+  /// **'Parts {parts} are larger than the sheet — check the sizes.'**
+  String sawTooBig(String parts);
+
+  /// No description provided for @sawSheetOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Sheet {n} of {total}'**
+  String sawSheetOf(int n, int total);
+
+  /// No description provided for @sawFences.
+  ///
+  /// In en, this message translates to:
+  /// **'fence set {count}×'**
+  String sawFences(int count);
+
+  /// No description provided for @sawCutTrim.
+  ///
+  /// In en, this message translates to:
+  /// **'Trim the edge {mm}'**
+  String sawCutTrim(String mm);
+
+  /// No description provided for @sawCutStrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Strip · fence {mm}'**
+  String sawCutStrip(String mm);
+
+  /// No description provided for @sawCutCross.
+  ///
+  /// In en, this message translates to:
+  /// **'Across · {mm}'**
+  String sawCutCross(String mm);
+
+  /// No description provided for @sawCutSplit.
+  ///
+  /// In en, this message translates to:
+  /// **'Part · fence {mm}'**
+  String sawCutSplit(String mm);
+
+  /// No description provided for @sawCutTrimPart.
+  ///
+  /// In en, this message translates to:
+  /// **'To size · {mm}'**
+  String sawCutTrimPart(String mm);
+
+  /// No description provided for @sawCutParts.
+  ///
+  /// In en, this message translates to:
+  /// **'parts {parts}'**
+  String sawCutParts(String parts);
+
+  /// No description provided for @sawSameFence.
+  ///
+  /// In en, this message translates to:
+  /// **'fence stays'**
+  String get sawSameFence;
+
+  /// No description provided for @sawCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked'**
+  String get sawCheck;
+
+  /// No description provided for @sawUncheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Take back «Checked»'**
+  String get sawUncheck;
+
+  /// No description provided for @sawPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'Print the map'**
+  String get sawPrint;
+
+  /// No description provided for @sawPrintLabels.
+  ///
+  /// In en, this message translates to:
+  /// **'Part labels'**
+  String get sawPrintLabels;
+
+  /// No description provided for @sawPrintOffcuts.
+  ///
+  /// In en, this message translates to:
+  /// **'Offcut labels'**
+  String get sawPrintOffcuts;
+
+  /// No description provided for @sawMarkDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Sawn'**
+  String get sawMarkDone;
+
+  /// No description provided for @sawUnmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Take back the mark'**
+  String get sawUnmark;
+
+  /// No description provided for @sawMarkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sheet {n} sawn'**
+  String sawMarkTitle(int n);
+
+  /// No description provided for @sawSawnBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sawn by {name} · {at}'**
+  String sawSawnBy(String name, String at);
+
+  /// No description provided for @sawSawnByNobody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sawn by: not said'**
+  String get sawSawnByNobody;
+
+  /// No description provided for @sawWho.
+  ///
+  /// In en, this message translates to:
+  /// **'Who sawed it'**
+  String get sawWho;
+
+  /// No description provided for @sawWhoDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'The cutter on the post'**
+  String get sawWhoDefault;
+
+  /// No description provided for @sawPickWho.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get sawPickWho;
+
+  /// No description provided for @sawDefects.
+  ///
+  /// In en, this message translates to:
+  /// **'Spoilt (part no., why)'**
+  String get sawDefects;
+
+  /// No description provided for @sawDefectNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Spoilt'**
+  String get sawDefectNote;
+
+  /// No description provided for @sawCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the job'**
+  String get sawCancel;
+
+  /// No description provided for @sawCancelReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why is it cancelled?'**
+  String get sawCancelReason;
+
+  /// No description provided for @sawCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled: {reason}'**
+  String sawCancelled(String reason);
+
+  /// No description provided for @sawVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'version {v}'**
+  String sawVersion(int v);
+
+  /// No description provided for @sawMadeBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Made by {name}'**
+  String sawMadeBy(String name);
+
+  /// No description provided for @sawCheckedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked by {name}'**
+  String sawCheckedBy(String name);
+
+  /// No description provided for @sawHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get sawHistory;
+
+  /// No description provided for @sawHistSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved · version {v}'**
+  String sawHistSaved(int v);
+
+  /// No description provided for @sawHistChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked'**
+  String get sawHistChecked;
+
+  /// No description provided for @sawHistUnchecked.
+  ///
+  /// In en, this message translates to:
+  /// **'«Checked» taken back'**
+  String get sawHistUnchecked;
+
+  /// No description provided for @sawHistSheetDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Sheet {n} sawn'**
+  String sawHistSheetDone(int n);
+
+  /// No description provided for @sawHistSheetUndone.
+  ///
+  /// In en, this message translates to:
+  /// **'Sheet {n} mark taken back'**
+  String sawHistSheetUndone(int n);
+
+  /// No description provided for @sawHistDefect.
+  ///
+  /// In en, this message translates to:
+  /// **'Spoilt on sheet {n}'**
+  String sawHistDefect(int n);
+
+  /// No description provided for @sawHistCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get sawHistCancelled;
+
+  /// No description provided for @sawHistMerged.
+  ///
+  /// In en, this message translates to:
+  /// **'Merged into {into}'**
+  String sawHistMerged(String into);
+
+  /// No description provided for @sawOffcutToShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'Offcut {size} → stock'**
+  String sawOffcutToShelf(String size);
+
+  /// No description provided for @sawOffcutLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Offcut'**
+  String get sawOffcutLabel;
+
+  /// No description provided for @sawKerf.
+  ///
+  /// In en, this message translates to:
+  /// **'Saw kerf, mm'**
+  String get sawKerf;
+
+  /// No description provided for @sawTrim.
+  ///
+  /// In en, this message translates to:
+  /// **'Edge trim, mm'**
+  String get sawTrim;
+
+  /// No description provided for @sawOffcutFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Offcut kept from, mm'**
+  String get sawOffcutFrom;
+
+  /// No description provided for @sawFence.
+  ///
+  /// In en, this message translates to:
+  /// **'Fence'**
+  String get sawFence;
+
+  /// No description provided for @sawFenceLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Left'**
+  String get sawFenceLeft;
+
+  /// No description provided for @sawFenceRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Right'**
+  String get sawFenceRight;
+
+  /// No description provided for @sawEdgeDeduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Take the edge thickness off the size'**
+  String get sawEdgeDeduct;
+
+  /// No description provided for @sawEdgeDeductHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A 766 part with a 2 mm edge at the bottom is sawn at 764.'**
+  String get sawEdgeDeductHint;
+
+  /// No description provided for @sawSheetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sheets by thickness'**
+  String get sawSheetsTitle;
+
+  /// No description provided for @sawSheetThickness.
+  ///
+  /// In en, this message translates to:
+  /// **'Thickness, mm'**
+  String get sawSheetThickness;
+
+  /// No description provided for @sawSheetHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Height (away from you), mm'**
+  String get sawSheetHeight;
+
+  /// No description provided for @sawSheetWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Width, mm'**
+  String get sawSheetWidth;
+
+  /// No description provided for @sawAddSheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Sheet'**
+  String get sawAddSheet;
+
+  /// No description provided for @sawDefaultSheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Other thicknesses: {height} × {width} (from the material norms)'**
+  String sawDefaultSheet(int height, int width);
+
+  /// No description provided for @sawSettingsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saw settings saved'**
+  String get sawSettingsSaved;
+
+  /// No description provided for @sawPrintSawnBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sawn by'**
+  String get sawPrintSawnBy;
+
+  /// No description provided for @sawPrintDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get sawPrintDate;
+
+  /// No description provided for @sawPrintDefects.
+  ///
+  /// In en, this message translates to:
+  /// **'Spoilt (part no., why)'**
+  String get sawPrintDefects;
+
+  /// No description provided for @sawPrintMeasure.
+  ///
+  /// In en, this message translates to:
+  /// **'After every fence setting, cut and measure the first part'**
+  String get sawPrintMeasure;
+
+  /// No description provided for @sawPrintEdgeLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Edge: thick line 2 mm, dashed 0.4'**
+  String get sawPrintEdgeLegend;
+
+  /// No description provided for @sawPrintCuts.
+  ///
+  /// In en, this message translates to:
+  /// **'Cut order'**
+  String get sawPrintCuts;
+
+  /// No description provided for @sawPrintSaw.
+  ///
+  /// In en, this message translates to:
+  /// **'Kerf {kerf} mm · edge trim {trim} mm'**
+  String sawPrintSaw(String kerf, String trim);
 }
 
 class _AppLocalizationsDelegate

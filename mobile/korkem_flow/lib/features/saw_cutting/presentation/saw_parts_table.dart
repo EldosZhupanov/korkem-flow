@@ -12,7 +12,9 @@ class SawPartRow {
       width = TextEditingController(text: _text(part?.width)),
       qty = TextEditingController(text: '${part?.qty ?? 1}'),
       name = TextEditingController(text: part?.name ?? ''),
-      edges = [...(part?.edges ?? const <double>[0, 0, 0, 0])],
+      edges = [
+        ...(part?.edges ?? const <double>[0, 0, 0, 0]),
+      ],
       rotate = part?.rotate ?? true,
       order = part?.order;
 
@@ -213,7 +215,13 @@ class SawPartsTable extends StatelessWidget {
         row.widthFocus,
         next: row.qtyFocus.requestFocus,
       ),
-      number('sawQ', row.qty, row.qtyFocus, whole: true, next: () => onAddRow(i)),
+      number(
+        'sawQ',
+        row.qty,
+        row.qtyFocus,
+        whole: true,
+        next: () => onAddRow(i),
+      ),
       Align(
         alignment: AlignmentDirectional.centerStart,
         child: SawEdgeCell(
@@ -278,7 +286,10 @@ class SawEdgeCell extends StatelessWidget {
   final ValueChanged<List<double>> onChanged;
   final bool enabled;
 
-  static const Size size = Size(AppSpacing.xxxl + AppSpacing.sm, AppSpacing.xxxl - AppSpacing.md);
+  static const Size size = Size(
+    AppSpacing.xxxl + AppSpacing.sm,
+    AppSpacing.xxxl - AppSpacing.md,
+  );
 
   static double next(double e) => e <= 0 ? 0.4 : (e < 1 ? 2 : 0);
 
@@ -307,8 +318,7 @@ class SawEdgeCell extends StatelessWidget {
             ? (e) {
                 final side = sideAt(e.localPosition);
                 onChanged([
-                  for (final (i, v) in edges.indexed)
-                    i == side ? next(v) : v,
+                  for (final (i, v) in edges.indexed) i == side ? next(v) : v,
                 ]);
               }
             : null,

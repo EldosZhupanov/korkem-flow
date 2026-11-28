@@ -41,7 +41,11 @@ bool sawSameFence(List<SawCut> cuts, int at) {
 }
 
 /// A part's bands in words: «низ 2, бока 0,4»; empty — none.
-String sawEdgesText(AppLocalizations l10n, List<double> edges, NumberFormat mm) {
+String sawEdgesText(
+  AppLocalizations l10n,
+  List<double> edges,
+  NumberFormat mm,
+) {
   final names = [
     l10n.sawEdgeTop,
     l10n.sawEdgeBottom,
@@ -146,7 +150,10 @@ Future<Uint8List> buildSawMapPdf(
               color: PdfColors.grey300,
               child: pw.Text(
                 l10n.sawPrintMeasure,
-                style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold),
+                style: pw.TextStyle(
+                  fontSize: 11,
+                  fontWeight: pw.FontWeight.bold,
+                ),
               ),
             ),
             pw.SizedBox(height: 10),
@@ -208,30 +215,30 @@ pw.Widget _cutRow(
 }) {
   final tail = same ? ' · ${l10n.sawSameFence}' : '';
   return pw.Padding(
-          padding: const pw.EdgeInsets.only(bottom: 3),
-          child: pw.Row(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Container(
-                width: 9,
-                height: 9,
-                margin: const pw.EdgeInsets.only(top: 1, right: 4),
-                decoration: pw.BoxDecoration(border: pw.Border.all(width: 0.8)),
-              ),
-              pw.Expanded(
-                child: pw.Text(
-                  '${i + 1}. ${sawCutText(l10n, cut, mm)}$tail',
-                  style: pw.TextStyle(
-                    fontSize: 9,
-                    fontWeight: cut.kind == SawCutKind.strip
-                        ? pw.FontWeight.bold
-                        : pw.FontWeight.normal,
-                  ),
-                ),
-              ),
-            ],
+    padding: const pw.EdgeInsets.only(bottom: 3),
+    child: pw.Row(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Container(
+          width: 9,
+          height: 9,
+          margin: const pw.EdgeInsets.only(top: 1, right: 4),
+          decoration: pw.BoxDecoration(border: pw.Border.all(width: 0.8)),
+        ),
+        pw.Expanded(
+          child: pw.Text(
+            '${i + 1}. ${sawCutText(l10n, cut, mm)}$tail',
+            style: pw.TextStyle(
+              fontSize: 9,
+              fontWeight: cut.kind == SawCutKind.strip
+                  ? pw.FontWeight.bold
+                  : pw.FontWeight.normal,
+            ),
           ),
-        );
+        ),
+      ],
+    ),
+  );
 }
 
 /// The sheet to scale, standing as the settings write it, mirrored when the
@@ -331,7 +338,8 @@ pw.Widget _sheetDrawing(
           for (final p in sheet.parts)
             if (p.width * scale > 12 && p.height * scale > 10)
               pw.Positioned(
-                left: (job.saw.fence == FenceSide.left ? 10.0 : 0.0) +
+                left:
+                    (job.saw.fence == FenceSide.left ? 10.0 : 0.0) +
                     (trim +
                             (job.saw.fence == FenceSide.left
                                 ? p.x
@@ -418,7 +426,11 @@ Future<Uint8List> buildSawLabelsPdf(
                         fontWeight: pw.FontWeight.bold,
                       ),
                     ),
-                    pw.Text(name, maxLines: 2, style: const pw.TextStyle(fontSize: 8)),
+                    pw.Text(
+                      name,
+                      maxLines: 2,
+                      style: const pw.TextStyle(fontSize: 8),
+                    ),
                     pw.SizedBox(height: 2),
                     pw.Text(
                       part == null
@@ -435,7 +447,9 @@ Future<Uint8List> buildSawLabelsPdf(
                       style: const pw.TextStyle(fontSize: 7),
                     ),
                     pw.Text(
-                      edges.isEmpty ? l10n.sawEdgeNone : '${l10n.sawColEdge}: $edges',
+                      edges.isEmpty
+                          ? l10n.sawEdgeNone
+                          : '${l10n.sawColEdge}: $edges',
                       maxLines: 2,
                       style: const pw.TextStyle(fontSize: 7),
                     ),
@@ -480,7 +494,12 @@ pw.Widget _edgeSketch(List<double> edges) {
     width: 30,
     height: 20,
     decoration: pw.BoxDecoration(
-      border: pw.Border(top: side(0), bottom: side(1), left: side(2), right: side(3)),
+      border: pw.Border(
+        top: side(0),
+        bottom: side(1),
+        left: side(2),
+        right: side(3),
+      ),
     ),
   );
 }

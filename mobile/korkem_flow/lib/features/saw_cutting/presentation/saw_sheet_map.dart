@@ -151,7 +151,10 @@ class _SheetPainter extends CustomPainter {
     _dashed(canvas, whole, Paint()..color = outline);
 
     for (final r in sheet.waste) {
-      canvas.drawRect(rect(r.x, r.y, r.width, r.height), Paint()..color = waste);
+      canvas.drawRect(
+        rect(r.x, r.y, r.width, r.height),
+        Paint()..color = waste,
+      );
     }
     for (final r in sheet.offcuts) {
       final box = rect(r.x, r.y, r.width, r.height);
@@ -207,7 +210,10 @@ class _SheetPainter extends CustomPainter {
     _text(
       canvas,
       _mm(widthMm),
-      Offset(left + widthMm * scale / 2, top + heightMm * scale + AppSpacing.md),
+      Offset(
+        left + widthMm * scale / 2,
+        top + heightMm * scale + AppSpacing.md,
+      ),
       sizeStyle,
       null,
     );
@@ -218,10 +224,22 @@ class _SheetPainter extends CustomPainter {
   void _bands(Canvas canvas, Rect box, List<double> edges) {
     final inset = AppSpacing.xxs;
     final sides = [
-      (Offset(box.left + inset, box.top + inset), Offset(box.right - inset, box.top + inset)),
-      (Offset(box.left + inset, box.bottom - inset), Offset(box.right - inset, box.bottom - inset)),
-      (Offset(box.left + inset, box.top + inset), Offset(box.left + inset, box.bottom - inset)),
-      (Offset(box.right - inset, box.top + inset), Offset(box.right - inset, box.bottom - inset)),
+      (
+        Offset(box.left + inset, box.top + inset),
+        Offset(box.right - inset, box.top + inset),
+      ),
+      (
+        Offset(box.left + inset, box.bottom - inset),
+        Offset(box.right - inset, box.bottom - inset),
+      ),
+      (
+        Offset(box.left + inset, box.top + inset),
+        Offset(box.left + inset, box.bottom - inset),
+      ),
+      (
+        Offset(box.right - inset, box.top + inset),
+        Offset(box.right - inset, box.bottom - inset),
+      ),
     ];
     for (final (i, (a, b)) in sides.indexed) {
       final e = i < edges.length ? edges[i] : 0;
@@ -250,11 +268,21 @@ class _SheetPainter extends CustomPainter {
     if (length == 0) return;
     final step = (b - a) / length;
     for (var d = 0.0; d < length; d += dash * 2) {
-      canvas.drawLine(a + step * d, a + step * math.min(d + dash, length), paint);
+      canvas.drawLine(
+        a + step * d,
+        a + step * math.min(d + dash, length),
+        paint,
+      );
     }
   }
 
-  void _text(Canvas canvas, String text, Offset at, TextStyle style, Rect? within) {
+  void _text(
+    Canvas canvas,
+    String text,
+    Offset at,
+    TextStyle style,
+    Rect? within,
+  ) {
     final painter = TextPainter(
       text: TextSpan(text: text, style: style),
       textDirection: TextDirection.ltr,

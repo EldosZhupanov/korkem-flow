@@ -13772,4 +13772,449 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get pressPeekWhere => 'Қайдан алу';
+
+  @override
+  String get sawTitle => 'Пішу';
+
+  @override
+  String get sawNew => 'Жаңа пішу';
+
+  @override
+  String get sawSettingsTitle => 'Ара: кесу ені, жиек, парақтар';
+
+  @override
+  String get sawSearchHint => 'Іздеу: клиент, тапсырыс, Р-нөмір, QR';
+
+  @override
+  String get sawFilterAll => 'Барлығы';
+
+  @override
+  String get sawFilterCheck => 'Тексеруді күтуде';
+
+  @override
+  String get sawFilterCutting => 'Кесілуде';
+
+  @override
+  String get sawFilterDone => 'Кесілді';
+
+  @override
+  String get sawStatusDraft => 'Тексеру керек';
+
+  @override
+  String get sawStatusChecked => 'Кесуге дайын';
+
+  @override
+  String get sawStatusCutting => 'Кесілуде';
+
+  @override
+  String get sawStatusDone => 'Кесілді';
+
+  @override
+  String get sawStatusCancelled => 'Тоқтатылды';
+
+  @override
+  String get sawEmpty => 'Әзірге пішу жоқ';
+
+  @override
+  String get sawEmptyHint =>
+      'Бөлшектерді енгізіңіз — бағдарлама оларды парақтарға орналастырып, кесулерді санайды.';
+
+  @override
+  String get sawToday => 'бүгін';
+
+  @override
+  String get sawTomorrow => 'ертең';
+
+  @override
+  String get sawOverdue => 'мерзімі өтті';
+
+  @override
+  String sawSheetsOf(int done, int total) {
+    return '$total парақтың $done';
+  }
+
+  @override
+  String sawWaste(int pct) {
+    return 'қалдық $pct%';
+  }
+
+  @override
+  String sawTogether(String jobs, String material, int together, int apart) {
+    return '$jobs ($material) бірге кесуге болады: $apart орнына $together парақ';
+  }
+
+  @override
+  String get sawTogetherAction => 'Біріктіру';
+
+  @override
+  String get sawMaterial => 'Материал';
+
+  @override
+  String get sawPickMaterial => 'Материалды таңдаңыз.';
+
+  @override
+  String get sawNoMaterials =>
+      'Қоймада қалыңдығы бар парақ материалы жоқ — оны «Қойма» бөліміне қосыңыз.';
+
+  @override
+  String get sawColNo => '№';
+
+  @override
+  String get sawColHeight => 'Биіктігі';
+
+  @override
+  String get sawColWidth => 'Ені';
+
+  @override
+  String get sawColQty => 'Саны';
+
+  @override
+  String get sawColEdge => 'Жиек';
+
+  @override
+  String get sawColRotate => 'Бұру';
+
+  @override
+  String get sawColName => 'Атауы';
+
+  @override
+  String sawPartDefault(int n) {
+    return 'Бөлшек $n';
+  }
+
+  @override
+  String get sawAddPart => 'Бөлшек';
+
+  @override
+  String get sawPaste => 'Қою';
+
+  @override
+  String get sawFromFile => 'Файлдан';
+
+  @override
+  String get sawPasteTitle => 'Жолдарды қойыңыз: биіктігі, ені, саны, атауы';
+
+  @override
+  String get sawPasteHint => '716 596 2 Бүйір';
+
+  @override
+  String sawImportRead(int count) {
+    return 'Оқылған жолдар: $count';
+  }
+
+  @override
+  String get sawImportReadAction => 'Оқу';
+
+  @override
+  String get sawImportProblems => 'Оқылмады:';
+
+  @override
+  String get sawImportAdd => 'Қосу';
+
+  @override
+  String get sawProblemNoSize => 'өлшемдер жоқ';
+
+  @override
+  String get sawProblemNoWidth => 'ені жоқ';
+
+  @override
+  String get sawProblemSize => 'өлшемі 0 немесе 5 м-ден көп';
+
+  @override
+  String get sawProblemQty => 'саны 1-ден 1000-ға дейін';
+
+  @override
+  String get sawEnterHint =>
+      '«Саны» өрісінде Enter — жаңа жол · жағын басу — жиек жоқ → 0,4 → 2 мм';
+
+  @override
+  String sawPartsCount(int count) {
+    return '$count бөлшек';
+  }
+
+  @override
+  String sawEdgeMetres(String thickness, String metres) {
+    return 'жиек $thickness мм: $metres м';
+  }
+
+  @override
+  String get sawEdgeNone => 'жиексіз';
+
+  @override
+  String get sawEdgeTop => 'үсті';
+
+  @override
+  String get sawEdgeBottom => 'асты';
+
+  @override
+  String get sawEdgeLeft => 'сол';
+
+  @override
+  String get sawEdgeRight => 'оң';
+
+  @override
+  String get sawCalculate => 'Есептеу';
+
+  @override
+  String get sawSave => 'Сақтау';
+
+  @override
+  String get sawSaved => 'Пішу сақталды';
+
+  @override
+  String get sawFillAll => 'Әр бөлшектің биіктігі мен енін толтырыңыз.';
+
+  @override
+  String get sawChoiceBest => 'Ұсынамыз';
+
+  @override
+  String get sawChoiceFences => 'Тірек аз ауыстырылады';
+
+  @override
+  String get sawChoiceOffcut => 'Ірі қиық';
+
+  @override
+  String sawChoiceLine(int sheets, int fences, int waste) {
+    return '$sheets пар. · тірек $fences рет · қалдық $waste%';
+  }
+
+  @override
+  String sawTooBig(String parts) {
+    return '$parts бөлшектері парақтан үлкен — өлшемдерді тексеріңіз.';
+  }
+
+  @override
+  String sawSheetOf(int n, int total) {
+    return '$total парақтың $n-сі';
+  }
+
+  @override
+  String sawFences(int count) {
+    return 'тірек $count рет қойылады';
+  }
+
+  @override
+  String sawCutTrim(String mm) {
+    return 'Жиегін кесу $mm';
+  }
+
+  @override
+  String sawCutStrip(String mm) {
+    return 'Жолақ · тірек $mm';
+  }
+
+  @override
+  String sawCutCross(String mm) {
+    return 'Көлденең · $mm';
+  }
+
+  @override
+  String sawCutSplit(String mm) {
+    return 'Бөлу · тірек $mm';
+  }
+
+  @override
+  String sawCutTrimPart(String mm) {
+    return 'Өлшемге келтіру · $mm';
+  }
+
+  @override
+  String sawCutParts(String parts) {
+    return 'бөлшектер $parts';
+  }
+
+  @override
+  String get sawSameFence => 'тірек сол күйі';
+
+  @override
+  String get sawCheck => 'Тексерілді';
+
+  @override
+  String get sawUncheck => '«Тексерілді» белгісін алу';
+
+  @override
+  String get sawPrint => 'Картаны басып шығару';
+
+  @override
+  String get sawPrintLabels => 'Бөлшек жапсырмалары';
+
+  @override
+  String get sawPrintOffcuts => 'Қиық жапсырмалары';
+
+  @override
+  String get sawMarkDone => 'Кесілді';
+
+  @override
+  String get sawUnmark => 'Белгіні алу';
+
+  @override
+  String sawMarkTitle(int n) {
+    return '$n-парақ кесілді';
+  }
+
+  @override
+  String sawSawnBy(String name, String at) {
+    return 'Кескен $name · $at';
+  }
+
+  @override
+  String get sawSawnByNobody => 'Кескен: көрсетілмеген';
+
+  @override
+  String get sawWho => 'Кім кесті';
+
+  @override
+  String get sawWhoDefault => 'Лауазымдағы пішуші';
+
+  @override
+  String get sawPickWho => 'Таңдау';
+
+  @override
+  String get sawDefects => 'Ақау (бөлшек №, себебі)';
+
+  @override
+  String get sawDefectNote => 'Ақау';
+
+  @override
+  String get sawCancel => 'Пішуді тоқтату';
+
+  @override
+  String get sawCancelReason => 'Неге тоқтатасыз?';
+
+  @override
+  String sawCancelled(String reason) {
+    return 'Тоқтатылды: $reason';
+  }
+
+  @override
+  String sawVersion(int v) {
+    return 'нұсқа $v';
+  }
+
+  @override
+  String sawMadeBy(String name) {
+    return 'Құрастырған $name';
+  }
+
+  @override
+  String sawCheckedBy(String name) {
+    return 'Тексерген $name';
+  }
+
+  @override
+  String get sawHistory => 'Тарих';
+
+  @override
+  String sawHistSaved(int v) {
+    return 'Сақталды · нұсқа $v';
+  }
+
+  @override
+  String get sawHistChecked => 'Тексерілді';
+
+  @override
+  String get sawHistUnchecked => '«Тексерілді» белгісі алынды';
+
+  @override
+  String sawHistSheetDone(int n) {
+    return '$n-парақ кесілді';
+  }
+
+  @override
+  String sawHistSheetUndone(int n) {
+    return '$n-парақ белгісі алынды';
+  }
+
+  @override
+  String sawHistDefect(int n) {
+    return '$n-парақта ақау';
+  }
+
+  @override
+  String get sawHistCancelled => 'Тоқтатылды';
+
+  @override
+  String sawHistMerged(String into) {
+    return '$into ішіне біріктірілді';
+  }
+
+  @override
+  String sawOffcutToShelf(String size) {
+    return 'Қиық $size → қойма';
+  }
+
+  @override
+  String get sawOffcutLabel => 'Қиық';
+
+  @override
+  String get sawKerf => 'Ара кесу ені, мм';
+
+  @override
+  String get sawTrim => 'Жиекті кесу, мм';
+
+  @override
+  String get sawOffcutFrom => 'Қоймаға қиық, мм-ден';
+
+  @override
+  String get sawFence => 'Тірек';
+
+  @override
+  String get sawFenceLeft => 'Сол жақта';
+
+  @override
+  String get sawFenceRight => 'Оң жақта';
+
+  @override
+  String get sawEdgeDeduct => 'Өлшемнен жиек қалыңдығын шегеру';
+
+  @override
+  String get sawEdgeDeductHint =>
+      'Астында 2 мм жиегі бар 766 бөлшек 764 болып кесіледі.';
+
+  @override
+  String get sawSheetsTitle => 'Қалыңдық бойынша парақтар';
+
+  @override
+  String get sawSheetThickness => 'Қалыңдығы, мм';
+
+  @override
+  String get sawSheetHeight => 'Биіктігі (өзіңізден), мм';
+
+  @override
+  String get sawSheetWidth => 'Ені, мм';
+
+  @override
+  String get sawAddSheet => 'Парақ';
+
+  @override
+  String sawDefaultSheet(int height, int width) {
+    return 'Басқа қалыңдықтар — $height × $width (материал нормаларынан)';
+  }
+
+  @override
+  String get sawSettingsSaved => 'Ара баптаулары сақталды';
+
+  @override
+  String get sawPrintSawnBy => 'Кескен';
+
+  @override
+  String get sawPrintDate => 'Күні';
+
+  @override
+  String get sawPrintDefects => 'Ақау (бөлшек №, себебі)';
+
+  @override
+  String get sawPrintMeasure =>
+      'Тірек әр ауыстырылғаннан кейін алғашқы бөлшекті кесіп, өлшеңіз';
+
+  @override
+  String get sawPrintEdgeLegend => 'Жиек: қалың сызық 2 мм, үзік 0,4';
+
+  @override
+  String get sawPrintCuts => 'Кесу реті';
+
+  @override
+  String sawPrintSaw(String kerf, String trim) {
+    return 'Кесу ені $kerf мм · жиек $trim мм';
+  }
 }

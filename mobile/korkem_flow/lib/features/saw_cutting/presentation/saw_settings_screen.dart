@@ -220,7 +220,11 @@ class _FormState extends ConsumerState<_Form> {
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     Expanded(
-                      child: _numberField('sawSheetW:$i', l10n.sawSheetWidth, w),
+                      child: _numberField(
+                        'sawSheetW:$i',
+                        l10n.sawSheetWidth,
+                        w,
+                      ),
                     ),
                     if (canEdit)
                       IconButton(

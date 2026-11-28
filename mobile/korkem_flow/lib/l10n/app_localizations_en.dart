@@ -13814,4 +13814,449 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pressPeekWhere => 'Where to get it';
+
+  @override
+  String get sawTitle => 'Cutting';
+
+  @override
+  String get sawNew => 'New cutting job';
+
+  @override
+  String get sawSettingsTitle => 'Saw: kerf, trim, sheets';
+
+  @override
+  String get sawSearchHint => 'Search: customer, order, Р-number, QR';
+
+  @override
+  String get sawFilterAll => 'All';
+
+  @override
+  String get sawFilterCheck => 'To check';
+
+  @override
+  String get sawFilterCutting => 'Being cut';
+
+  @override
+  String get sawFilterDone => 'Cut';
+
+  @override
+  String get sawStatusDraft => 'To check';
+
+  @override
+  String get sawStatusChecked => 'Ready to cut';
+
+  @override
+  String get sawStatusCutting => 'Being cut';
+
+  @override
+  String get sawStatusDone => 'Cut';
+
+  @override
+  String get sawStatusCancelled => 'Cancelled';
+
+  @override
+  String get sawEmpty => 'No cutting jobs yet';
+
+  @override
+  String get sawEmptyHint =>
+      'Enter the parts — they are laid out on sheets and the cuts counted.';
+
+  @override
+  String get sawToday => 'today';
+
+  @override
+  String get sawTomorrow => 'tomorrow';
+
+  @override
+  String get sawOverdue => 'overdue';
+
+  @override
+  String sawSheetsOf(int done, int total) {
+    return '$done of $total sheets';
+  }
+
+  @override
+  String sawWaste(int pct) {
+    return 'waste $pct%';
+  }
+
+  @override
+  String sawTogether(String jobs, String material, int together, int apart) {
+    return '$jobs on $material can be cut together: $together sheets instead of $apart';
+  }
+
+  @override
+  String get sawTogetherAction => 'Merge';
+
+  @override
+  String get sawMaterial => 'Material';
+
+  @override
+  String get sawPickMaterial => 'Choose the material.';
+
+  @override
+  String get sawNoMaterials =>
+      'No sheet material with a thickness in stock — add one in «Stock».';
+
+  @override
+  String get sawColNo => 'No.';
+
+  @override
+  String get sawColHeight => 'Height';
+
+  @override
+  String get sawColWidth => 'Width';
+
+  @override
+  String get sawColQty => 'Qty';
+
+  @override
+  String get sawColEdge => 'Edge';
+
+  @override
+  String get sawColRotate => 'Turn';
+
+  @override
+  String get sawColName => 'Name';
+
+  @override
+  String sawPartDefault(int n) {
+    return 'Part $n';
+  }
+
+  @override
+  String get sawAddPart => 'Part';
+
+  @override
+  String get sawPaste => 'Paste';
+
+  @override
+  String get sawFromFile => 'From a file';
+
+  @override
+  String get sawPasteTitle => 'Paste rows: height, width, quantity, name';
+
+  @override
+  String get sawPasteHint => '716 596 2 Side';
+
+  @override
+  String sawImportRead(int count) {
+    return 'Rows read: $count';
+  }
+
+  @override
+  String get sawImportReadAction => 'Read';
+
+  @override
+  String get sawImportProblems => 'Not read:';
+
+  @override
+  String get sawImportAdd => 'Add';
+
+  @override
+  String get sawProblemNoSize => 'no sizes';
+
+  @override
+  String get sawProblemNoWidth => 'no width';
+
+  @override
+  String get sawProblemSize => 'size 0 or over 5 m';
+
+  @override
+  String get sawProblemQty => 'quantity from 1 to 1000';
+
+  @override
+  String get sawEnterHint =>
+      'Enter in «Qty» — a new row · tap a side — edge none → 0.4 → 2 mm';
+
+  @override
+  String sawPartsCount(int count) {
+    return '$count parts';
+  }
+
+  @override
+  String sawEdgeMetres(String thickness, String metres) {
+    return 'edge $thickness mm: $metres m';
+  }
+
+  @override
+  String get sawEdgeNone => 'no edge';
+
+  @override
+  String get sawEdgeTop => 'top';
+
+  @override
+  String get sawEdgeBottom => 'bottom';
+
+  @override
+  String get sawEdgeLeft => 'left';
+
+  @override
+  String get sawEdgeRight => 'right';
+
+  @override
+  String get sawCalculate => 'Calculate';
+
+  @override
+  String get sawSave => 'Save';
+
+  @override
+  String get sawSaved => 'Cutting job saved';
+
+  @override
+  String get sawFillAll => 'Fill in the height and width of every part.';
+
+  @override
+  String get sawChoiceBest => 'Recommended';
+
+  @override
+  String get sawChoiceFences => 'Fewer fence settings';
+
+  @override
+  String get sawChoiceOffcut => 'Larger offcut';
+
+  @override
+  String sawChoiceLine(int sheets, int fences, int waste) {
+    return '$sheets sh. · fence $fences× · waste $waste%';
+  }
+
+  @override
+  String sawTooBig(String parts) {
+    return 'Parts $parts are larger than the sheet — check the sizes.';
+  }
+
+  @override
+  String sawSheetOf(int n, int total) {
+    return 'Sheet $n of $total';
+  }
+
+  @override
+  String sawFences(int count) {
+    return 'fence set $count×';
+  }
+
+  @override
+  String sawCutTrim(String mm) {
+    return 'Trim the edge $mm';
+  }
+
+  @override
+  String sawCutStrip(String mm) {
+    return 'Strip · fence $mm';
+  }
+
+  @override
+  String sawCutCross(String mm) {
+    return 'Across · $mm';
+  }
+
+  @override
+  String sawCutSplit(String mm) {
+    return 'Part · fence $mm';
+  }
+
+  @override
+  String sawCutTrimPart(String mm) {
+    return 'To size · $mm';
+  }
+
+  @override
+  String sawCutParts(String parts) {
+    return 'parts $parts';
+  }
+
+  @override
+  String get sawSameFence => 'fence stays';
+
+  @override
+  String get sawCheck => 'Checked';
+
+  @override
+  String get sawUncheck => 'Take back «Checked»';
+
+  @override
+  String get sawPrint => 'Print the map';
+
+  @override
+  String get sawPrintLabels => 'Part labels';
+
+  @override
+  String get sawPrintOffcuts => 'Offcut labels';
+
+  @override
+  String get sawMarkDone => 'Sawn';
+
+  @override
+  String get sawUnmark => 'Take back the mark';
+
+  @override
+  String sawMarkTitle(int n) {
+    return 'Sheet $n sawn';
+  }
+
+  @override
+  String sawSawnBy(String name, String at) {
+    return 'Sawn by $name · $at';
+  }
+
+  @override
+  String get sawSawnByNobody => 'Sawn by: not said';
+
+  @override
+  String get sawWho => 'Who sawed it';
+
+  @override
+  String get sawWhoDefault => 'The cutter on the post';
+
+  @override
+  String get sawPickWho => 'Choose';
+
+  @override
+  String get sawDefects => 'Spoilt (part no., why)';
+
+  @override
+  String get sawDefectNote => 'Spoilt';
+
+  @override
+  String get sawCancel => 'Cancel the job';
+
+  @override
+  String get sawCancelReason => 'Why is it cancelled?';
+
+  @override
+  String sawCancelled(String reason) {
+    return 'Cancelled: $reason';
+  }
+
+  @override
+  String sawVersion(int v) {
+    return 'version $v';
+  }
+
+  @override
+  String sawMadeBy(String name) {
+    return 'Made by $name';
+  }
+
+  @override
+  String sawCheckedBy(String name) {
+    return 'Checked by $name';
+  }
+
+  @override
+  String get sawHistory => 'History';
+
+  @override
+  String sawHistSaved(int v) {
+    return 'Saved · version $v';
+  }
+
+  @override
+  String get sawHistChecked => 'Checked';
+
+  @override
+  String get sawHistUnchecked => '«Checked» taken back';
+
+  @override
+  String sawHistSheetDone(int n) {
+    return 'Sheet $n sawn';
+  }
+
+  @override
+  String sawHistSheetUndone(int n) {
+    return 'Sheet $n mark taken back';
+  }
+
+  @override
+  String sawHistDefect(int n) {
+    return 'Spoilt on sheet $n';
+  }
+
+  @override
+  String get sawHistCancelled => 'Cancelled';
+
+  @override
+  String sawHistMerged(String into) {
+    return 'Merged into $into';
+  }
+
+  @override
+  String sawOffcutToShelf(String size) {
+    return 'Offcut $size → stock';
+  }
+
+  @override
+  String get sawOffcutLabel => 'Offcut';
+
+  @override
+  String get sawKerf => 'Saw kerf, mm';
+
+  @override
+  String get sawTrim => 'Edge trim, mm';
+
+  @override
+  String get sawOffcutFrom => 'Offcut kept from, mm';
+
+  @override
+  String get sawFence => 'Fence';
+
+  @override
+  String get sawFenceLeft => 'Left';
+
+  @override
+  String get sawFenceRight => 'Right';
+
+  @override
+  String get sawEdgeDeduct => 'Take the edge thickness off the size';
+
+  @override
+  String get sawEdgeDeductHint =>
+      'A 766 part with a 2 mm edge at the bottom is sawn at 764.';
+
+  @override
+  String get sawSheetsTitle => 'Sheets by thickness';
+
+  @override
+  String get sawSheetThickness => 'Thickness, mm';
+
+  @override
+  String get sawSheetHeight => 'Height (away from you), mm';
+
+  @override
+  String get sawSheetWidth => 'Width, mm';
+
+  @override
+  String get sawAddSheet => 'Sheet';
+
+  @override
+  String sawDefaultSheet(int height, int width) {
+    return 'Other thicknesses: $height × $width (from the material norms)';
+  }
+
+  @override
+  String get sawSettingsSaved => 'Saw settings saved';
+
+  @override
+  String get sawPrintSawnBy => 'Sawn by';
+
+  @override
+  String get sawPrintDate => 'Date';
+
+  @override
+  String get sawPrintDefects => 'Spoilt (part no., why)';
+
+  @override
+  String get sawPrintMeasure =>
+      'After every fence setting, cut and measure the first part';
+
+  @override
+  String get sawPrintEdgeLegend => 'Edge: thick line 2 mm, dashed 0.4';
+
+  @override
+  String get sawPrintCuts => 'Cut order';
+
+  @override
+  String sawPrintSaw(String kerf, String trim) {
+    return 'Kerf $kerf mm · edge trim $trim mm';
+  }
 }

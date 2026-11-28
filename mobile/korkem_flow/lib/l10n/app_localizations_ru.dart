@@ -13850,4 +13850,450 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pressPeekWhere => 'Где взять';
+
+  @override
+  String get sawTitle => 'Раскрой';
+
+  @override
+  String get sawNew => 'Новый раскрой';
+
+  @override
+  String get sawSettingsTitle => 'Пила: пропил, обрезка, листы';
+
+  @override
+  String get sawSearchHint => 'Поиск: клиент, заказ, Р-номер, QR';
+
+  @override
+  String get sawFilterAll => 'Все';
+
+  @override
+  String get sawFilterCheck => 'Ждут проверки';
+
+  @override
+  String get sawFilterCutting => 'Пилятся';
+
+  @override
+  String get sawFilterDone => 'Распилены';
+
+  @override
+  String get sawStatusDraft => 'Проверить';
+
+  @override
+  String get sawStatusChecked => 'Готов к распилу';
+
+  @override
+  String get sawStatusCutting => 'Пилится';
+
+  @override
+  String get sawStatusDone => 'Распилен';
+
+  @override
+  String get sawStatusCancelled => 'Отменён';
+
+  @override
+  String get sawEmpty => 'Раскроев пока нет';
+
+  @override
+  String get sawEmptyHint =>
+      'Введите детали — программа разложит их по листам и посчитает резы.';
+
+  @override
+  String get sawToday => 'сегодня';
+
+  @override
+  String get sawTomorrow => 'завтра';
+
+  @override
+  String get sawOverdue => 'просрочен';
+
+  @override
+  String sawSheetsOf(int done, int total) {
+    return '$done из $total листов';
+  }
+
+  @override
+  String sawWaste(int pct) {
+    return 'отход $pct%';
+  }
+
+  @override
+  String sawTogether(String jobs, String material, int together, int apart) {
+    return '$jobs на $material можно пилить вместе: $together л. вместо $apart';
+  }
+
+  @override
+  String get sawTogetherAction => 'Объединить';
+
+  @override
+  String get sawMaterial => 'Материал';
+
+  @override
+  String get sawPickMaterial => 'Выберите материал.';
+
+  @override
+  String get sawNoMaterials =>
+      'На складе нет листового материала с толщиной — добавьте его в «Склад».';
+
+  @override
+  String get sawColNo => '№';
+
+  @override
+  String get sawColHeight => 'Высота';
+
+  @override
+  String get sawColWidth => 'Ширина';
+
+  @override
+  String get sawColQty => 'Кол-во';
+
+  @override
+  String get sawColEdge => 'Кромка';
+
+  @override
+  String get sawColRotate => 'Поворот';
+
+  @override
+  String get sawColName => 'Название';
+
+  @override
+  String sawPartDefault(int n) {
+    return 'Деталь $n';
+  }
+
+  @override
+  String get sawAddPart => 'Деталь';
+
+  @override
+  String get sawPaste => 'Вставить';
+
+  @override
+  String get sawFromFile => 'Из файла';
+
+  @override
+  String get sawPasteTitle =>
+      'Вставьте строки: высота, ширина, количество, название';
+
+  @override
+  String get sawPasteHint => '716 596 2 Боковина';
+
+  @override
+  String sawImportRead(int count) {
+    return 'Прочитано строк: $count';
+  }
+
+  @override
+  String get sawImportReadAction => 'Прочитать';
+
+  @override
+  String get sawImportProblems => 'Не прочитаны:';
+
+  @override
+  String get sawImportAdd => 'Добавить';
+
+  @override
+  String get sawProblemNoSize => 'нет размеров';
+
+  @override
+  String get sawProblemNoWidth => 'нет ширины';
+
+  @override
+  String get sawProblemSize => 'размер 0 или больше 5 м';
+
+  @override
+  String get sawProblemQty => 'количество от 1 до 1000';
+
+  @override
+  String get sawEnterHint =>
+      'Enter в «Кол-во» — новая строка · нажатие на сторону — кромка нет → 0,4 → 2 мм';
+
+  @override
+  String sawPartsCount(int count) {
+    return '$count деталей';
+  }
+
+  @override
+  String sawEdgeMetres(String thickness, String metres) {
+    return 'кромка $thickness мм: $metres м';
+  }
+
+  @override
+  String get sawEdgeNone => 'без кромки';
+
+  @override
+  String get sawEdgeTop => 'верх';
+
+  @override
+  String get sawEdgeBottom => 'низ';
+
+  @override
+  String get sawEdgeLeft => 'лево';
+
+  @override
+  String get sawEdgeRight => 'право';
+
+  @override
+  String get sawCalculate => 'Рассчитать';
+
+  @override
+  String get sawSave => 'Сохранить';
+
+  @override
+  String get sawSaved => 'Раскрой сохранён';
+
+  @override
+  String get sawFillAll => 'Заполните высоту и ширину у каждой детали.';
+
+  @override
+  String get sawChoiceBest => 'Рекомендуем';
+
+  @override
+  String get sawChoiceFences => 'Меньше перестановок';
+
+  @override
+  String get sawChoiceOffcut => 'Крупный обрезок';
+
+  @override
+  String sawChoiceLine(int sheets, int fences, int waste) {
+    return '$sheets л. · упор $fences раз · отход $waste%';
+  }
+
+  @override
+  String sawTooBig(String parts) {
+    return 'Детали $parts больше листа — проверьте размеры.';
+  }
+
+  @override
+  String sawSheetOf(int n, int total) {
+    return 'Лист $n из $total';
+  }
+
+  @override
+  String sawFences(int count) {
+    return 'упор ставят $count раз';
+  }
+
+  @override
+  String sawCutTrim(String mm) {
+    return 'Обрезка края $mm';
+  }
+
+  @override
+  String sawCutStrip(String mm) {
+    return 'Полоса · упор $mm';
+  }
+
+  @override
+  String sawCutCross(String mm) {
+    return 'Поперёк · $mm';
+  }
+
+  @override
+  String sawCutSplit(String mm) {
+    return 'Разрез · упор $mm';
+  }
+
+  @override
+  String sawCutTrimPart(String mm) {
+    return 'Доводка · $mm';
+  }
+
+  @override
+  String sawCutParts(String parts) {
+    return 'детали $parts';
+  }
+
+  @override
+  String get sawSameFence => 'упор тот же';
+
+  @override
+  String get sawCheck => 'Проверено';
+
+  @override
+  String get sawUncheck => 'Снять «Проверено»';
+
+  @override
+  String get sawPrint => 'Печать карты';
+
+  @override
+  String get sawPrintLabels => 'Наклейки деталей';
+
+  @override
+  String get sawPrintOffcuts => 'Наклейки обрезков';
+
+  @override
+  String get sawMarkDone => 'Распилен';
+
+  @override
+  String get sawUnmark => 'Снять отметку';
+
+  @override
+  String sawMarkTitle(int n) {
+    return 'Лист $n распилен';
+  }
+
+  @override
+  String sawSawnBy(String name, String at) {
+    return 'Пилил $name · $at';
+  }
+
+  @override
+  String get sawSawnByNobody => 'Пилил: не указан';
+
+  @override
+  String get sawWho => 'Кто пилил';
+
+  @override
+  String get sawWhoDefault => 'Раскройщик на посту';
+
+  @override
+  String get sawPickWho => 'Выбрать';
+
+  @override
+  String get sawDefects => 'Брак (№ детали, причина)';
+
+  @override
+  String get sawDefectNote => 'Брак';
+
+  @override
+  String get sawCancel => 'Отменить раскрой';
+
+  @override
+  String get sawCancelReason => 'Почему отменяете?';
+
+  @override
+  String sawCancelled(String reason) {
+    return 'Отменён: $reason';
+  }
+
+  @override
+  String sawVersion(int v) {
+    return 'версия $v';
+  }
+
+  @override
+  String sawMadeBy(String name) {
+    return 'Составил $name';
+  }
+
+  @override
+  String sawCheckedBy(String name) {
+    return 'Проверил $name';
+  }
+
+  @override
+  String get sawHistory => 'История';
+
+  @override
+  String sawHistSaved(int v) {
+    return 'Сохранён · версия $v';
+  }
+
+  @override
+  String get sawHistChecked => 'Проверен';
+
+  @override
+  String get sawHistUnchecked => 'Снята отметка «Проверено»';
+
+  @override
+  String sawHistSheetDone(int n) {
+    return 'Лист $n распилен';
+  }
+
+  @override
+  String sawHistSheetUndone(int n) {
+    return 'Снята отметка листа $n';
+  }
+
+  @override
+  String sawHistDefect(int n) {
+    return 'Брак на листе $n';
+  }
+
+  @override
+  String get sawHistCancelled => 'Отменён';
+
+  @override
+  String sawHistMerged(String into) {
+    return 'Объединён в $into';
+  }
+
+  @override
+  String sawOffcutToShelf(String size) {
+    return 'Обрезок $size → склад';
+  }
+
+  @override
+  String get sawOffcutLabel => 'Обрезок';
+
+  @override
+  String get sawKerf => 'Пропил пилы, мм';
+
+  @override
+  String get sawTrim => 'Обрезка края, мм';
+
+  @override
+  String get sawOffcutFrom => 'Обрезок на склад от, мм';
+
+  @override
+  String get sawFence => 'Упор';
+
+  @override
+  String get sawFenceLeft => 'Слева';
+
+  @override
+  String get sawFenceRight => 'Справа';
+
+  @override
+  String get sawEdgeDeduct => 'Вычитать толщину кромки из размера';
+
+  @override
+  String get sawEdgeDeductHint =>
+      'Деталь 766 с кромкой 2 мм снизу пилится 764.';
+
+  @override
+  String get sawSheetsTitle => 'Листы по толщине';
+
+  @override
+  String get sawSheetThickness => 'Толщина, мм';
+
+  @override
+  String get sawSheetHeight => 'Высота (от себя), мм';
+
+  @override
+  String get sawSheetWidth => 'Ширина, мм';
+
+  @override
+  String get sawAddSheet => 'Лист';
+
+  @override
+  String sawDefaultSheet(int height, int width) {
+    return 'Другие толщины — $height × $width (из норм материалов)';
+  }
+
+  @override
+  String get sawSettingsSaved => 'Настройки пилы сохранены';
+
+  @override
+  String get sawPrintSawnBy => 'Пилил';
+
+  @override
+  String get sawPrintDate => 'Дата';
+
+  @override
+  String get sawPrintDefects => 'Брак (№ детали, причина)';
+
+  @override
+  String get sawPrintMeasure =>
+      'После каждой перестановки упора отрежьте и замерьте первую деталь';
+
+  @override
+  String get sawPrintEdgeLegend => 'Кромка: толстая линия 2 мм, пунктир 0,4';
+
+  @override
+  String get sawPrintCuts => 'Порядок резов';
+
+  @override
+  String sawPrintSaw(String kerf, String trim) {
+    return 'Пропил $kerf мм · обрезка края $trim мм';
+  }
 }

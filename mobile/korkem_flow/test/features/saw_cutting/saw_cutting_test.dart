@@ -132,7 +132,12 @@ Map<String, dynamic> _job({String status = 'Checked'}) => {
   'made_by': 'Айгерим',
   'can_make': true,
   'history': [
-    {'action': 'job_saved', 'at': '2026-11-28 08:30', 'who': 'Айгерим', 'version': 2},
+    {
+      'action': 'job_saved',
+      'at': '2026-11-28 08:30',
+      'who': 'Айгерим',
+      'version': 2,
+    },
   ],
 };
 

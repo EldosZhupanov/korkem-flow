@@ -723,8 +723,12 @@ class SawJournal {
 
   factory SawJournal.fromJson(Map<String, dynamic> json) => SawJournal(
     jobs: [for (final j in _maps(json['jobs'])) JournalRow.fromJson(j)],
-    together: [for (final t in _maps(json['together'])) SawTogether.fromJson(t)],
-    materials: [for (final m in _maps(json['materials'])) SawMaterial.fromJson(m)],
+    together: [
+      for (final t in _maps(json['together'])) SawTogether.fromJson(t),
+    ],
+    materials: [
+      for (final m in _maps(json['materials'])) SawMaterial.fromJson(m),
+    ],
     canMake: json['can_make'] == true,
   );
 
