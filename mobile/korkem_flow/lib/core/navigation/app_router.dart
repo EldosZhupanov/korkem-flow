@@ -73,6 +73,9 @@ import 'package:korkem_flow/features/pin_login/presentation/pin_admin_screen.dar
 import 'package:korkem_flow/features/pin_login/presentation/pin_login_screen.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_layout_screen.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_settings_screen.dart';
+import 'package:korkem_flow/features/saw_cutting/presentation/saw_job_screen.dart';
+import 'package:korkem_flow/features/saw_cutting/presentation/saw_journal_screen.dart';
+import 'package:korkem_flow/features/saw_cutting/presentation/saw_settings_screen.dart';
 import 'package:korkem_flow/features/production/presentation/work_order_detail_screen.dart';
 import 'package:korkem_flow/features/profile/presentation/profile_screen.dart';
 import 'package:korkem_flow/features/provisioning/presentation/claim_screen.dart';
@@ -228,6 +231,14 @@ abstract final class Routes {
     queryParameters: {'span': span.name, 'day': ?day},
   ).toString();
   static const offcuts = '/offcuts';
+
+  /// «Цех → Раскрой» (owner, 28.11.2026): the panel saw's jobs.
+  static const saw = '/saw';
+  static const sawNew = '/saw/new';
+  static const sawJob = '/saw/job/:name';
+  static String sawJobOf(String name) =>
+      '/saw/job/${Uri.encodeComponent(name)}';
+  static const sawSettings = '/settings/saw';
   static const clientCardPattern = '/clients/:customer';
   static String clientCard(String customer) =>
       '/clients/${Uri.encodeComponent(customer)}';
@@ -500,6 +511,23 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.offcuts,
         builder: (context, state) => const OffcutsScreen(),
+      ),
+      GoRoute(
+        path: Routes.saw,
+        builder: (context, state) => const SawJournalScreen(),
+      ),
+      GoRoute(
+        path: Routes.sawNew,
+        builder: (context, state) => const SawJobScreen(),
+      ),
+      GoRoute(
+        path: Routes.sawJob,
+        builder: (context, state) =>
+            SawJobScreen(name: state.pathParameters['name']),
+      ),
+      GoRoute(
+        path: Routes.sawSettings,
+        builder: (context, state) => const SawSettingsScreen(),
       ),
       GoRoute(
         path: Routes.clientCardPattern,

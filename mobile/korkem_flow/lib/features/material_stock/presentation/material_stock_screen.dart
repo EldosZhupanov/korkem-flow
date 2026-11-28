@@ -636,6 +636,18 @@ class _Lists extends ConsumerWidget {
                   ),
                 ),
               ),
+              // The panel saw every cutting job is counted for (saw_cutting).
+              ReadableWidth(
+                child: Card(
+                  child: ListTile(
+                    key: const ValueKey('sawSettingsOpen'),
+                    leading: const Icon(AppIcons.sawCutting),
+                    title: Text(l10n.sawSettingsTitle),
+                    trailing: const Icon(AppIcons.forward),
+                    onTap: () => context.push(Routes.sawSettings),
+                  ),
+                ),
+              ),
               for (final list in MaterialLists.all)
                 ReadableWidth(
                   child: _ListCard(

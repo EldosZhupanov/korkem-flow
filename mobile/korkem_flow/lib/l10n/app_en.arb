@@ -12151,5 +12151,381 @@
     }
   },
   "pressPeekUnknown": "There is no such film in the catalogue.",
-  "pressPeekWhere": "Where to get it"
+  "pressPeekWhere": "Where to get it",
+  "sawTitle": "Cutting",
+  "sawNew": "New cutting job",
+  "sawSettingsTitle": "Saw: kerf, trim, sheets",
+  "sawSearchHint": "Search: customer, order, Р-number, QR",
+  "sawFilterAll": "All",
+  "sawFilterCheck": "To check",
+  "sawFilterCutting": "Being cut",
+  "sawFilterDone": "Cut",
+  "sawStatusDraft": "To check",
+  "sawStatusChecked": "Ready to cut",
+  "sawStatusCutting": "Being cut",
+  "sawStatusDone": "Cut",
+  "sawStatusCancelled": "Cancelled",
+  "sawEmpty": "No cutting jobs yet",
+  "sawEmptyHint": "Enter the parts — they are laid out on sheets and the cuts counted.",
+  "sawToday": "today",
+  "sawTomorrow": "tomorrow",
+  "sawOverdue": "overdue",
+  "sawSheetsOf": "{done} of {total} sheets",
+  "@sawSheetsOf": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "sawWaste": "waste {pct}%",
+  "@sawWaste": {
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "sawTogether": "{jobs} on {material} can be cut together: {together} sheets instead of {apart}",
+  "@sawTogether": {
+    "placeholders": {
+      "jobs": {
+        "type": "String"
+      },
+      "material": {
+        "type": "String"
+      },
+      "together": {
+        "type": "int"
+      },
+      "apart": {
+        "type": "int"
+      }
+    }
+  },
+  "sawTogetherAction": "Merge",
+  "sawMaterial": "Material",
+  "sawPickMaterial": "Choose the material.",
+  "sawNoMaterials": "No sheet material with a thickness in stock — add one in «Stock».",
+  "sawColNo": "No.",
+  "sawColHeight": "Height",
+  "sawColWidth": "Width",
+  "sawColQty": "Qty",
+  "sawColEdge": "Edge",
+  "sawColRotate": "Turn",
+  "sawColName": "Name",
+  "sawPartDefault": "Part {n}",
+  "@sawPartDefault": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "sawAddPart": "Part",
+  "sawPaste": "Paste",
+  "sawFromFile": "From a file",
+  "sawPasteTitle": "Paste rows: height, width, quantity, name",
+  "sawPasteHint": "716 596 2 Side",
+  "sawImportRead": "Rows read: {count}",
+  "@sawImportRead": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sawImportReadAction": "Read",
+  "sawImportProblems": "Not read:",
+  "sawImportAdd": "Add",
+  "sawProblemNoSize": "no sizes",
+  "sawProblemNoWidth": "no width",
+  "sawProblemSize": "size 0 or over 5 m",
+  "sawProblemQty": "quantity from 1 to 1000",
+  "sawEnterHint": "Enter in «Qty» — a new row · tap a side — edge none → 0.4 → 2 mm",
+  "sawPartsCount": "{count} parts",
+  "@sawPartsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sawEdgeMetres": "edge {thickness} mm: {metres} m",
+  "@sawEdgeMetres": {
+    "placeholders": {
+      "thickness": {
+        "type": "String"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "sawEdgeNone": "no edge",
+  "sawEdgeTop": "top",
+  "sawEdgeBottom": "bottom",
+  "sawEdgeLeft": "left",
+  "sawEdgeRight": "right",
+  "sawCalculate": "Calculate",
+  "sawSave": "Save",
+  "sawSaved": "Cutting job saved",
+  "sawFillAll": "Fill in the height and width of every part.",
+  "sawChoiceBest": "Recommended",
+  "sawChoiceFences": "Fewer fence settings",
+  "sawChoiceOffcut": "Larger offcut",
+  "sawChoiceLine": "{sheets} sh. · fence {fences}× · waste {waste}%",
+  "@sawChoiceLine": {
+    "placeholders": {
+      "sheets": {
+        "type": "int"
+      },
+      "fences": {
+        "type": "int"
+      },
+      "waste": {
+        "type": "int"
+      }
+    }
+  },
+  "sawTooBig": "Parts {parts} are larger than the sheet — check the sizes.",
+  "@sawTooBig": {
+    "placeholders": {
+      "parts": {
+        "type": "String"
+      }
+    }
+  },
+  "sawSheetOf": "Sheet {n} of {total}",
+  "@sawSheetOf": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "sawFences": "fence set {count}×",
+  "@sawFences": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sawCutTrim": "Trim the edge {mm}",
+  "@sawCutTrim": {
+    "placeholders": {
+      "mm": {
+        "type": "String"
+      }
+    }
+  },
+  "sawCutStrip": "Strip · fence {mm}",
+  "@sawCutStrip": {
+    "placeholders": {
+      "mm": {
+        "type": "String"
+      }
+    }
+  },
+  "sawCutCross": "Across · {mm}",
+  "@sawCutCross": {
+    "placeholders": {
+      "mm": {
+        "type": "String"
+      }
+    }
+  },
+  "sawCutSplit": "Part · fence {mm}",
+  "@sawCutSplit": {
+    "placeholders": {
+      "mm": {
+        "type": "String"
+      }
+    }
+  },
+  "sawCutTrimPart": "To size · {mm}",
+  "@sawCutTrimPart": {
+    "placeholders": {
+      "mm": {
+        "type": "String"
+      }
+    }
+  },
+  "sawCutParts": "parts {parts}",
+  "@sawCutParts": {
+    "placeholders": {
+      "parts": {
+        "type": "String"
+      }
+    }
+  },
+  "sawSameFence": "fence stays",
+  "sawCheck": "Checked",
+  "sawUncheck": "Take back «Checked»",
+  "sawPrint": "Print the map",
+  "sawPrintLabels": "Part labels",
+  "sawPrintOffcuts": "Offcut labels",
+  "sawMarkDone": "Sawn",
+  "sawUnmark": "Take back the mark",
+  "sawMarkTitle": "Sheet {n} sawn",
+  "@sawMarkTitle": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "sawSawnBy": "Sawn by {name} · {at}",
+  "@sawSawnBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "at": {
+        "type": "String"
+      }
+    }
+  },
+  "sawSawnByNobody": "Sawn by: not said",
+  "sawWho": "Who sawed it",
+  "sawWhoDefault": "The cutter on the post",
+  "sawPickWho": "Choose",
+  "sawDefects": "Spoilt (part no., why)",
+  "sawDefectNote": "Spoilt",
+  "sawCancel": "Cancel the job",
+  "sawCancelReason": "Why is it cancelled?",
+  "sawCancelled": "Cancelled: {reason}",
+  "@sawCancelled": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "sawVersion": "version {v}",
+  "@sawVersion": {
+    "placeholders": {
+      "v": {
+        "type": "int"
+      }
+    }
+  },
+  "sawMadeBy": "Made by {name}",
+  "@sawMadeBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sawCheckedBy": "Checked by {name}",
+  "@sawCheckedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sawHistory": "History",
+  "sawHistSaved": "Saved · version {v}",
+  "@sawHistSaved": {
+    "placeholders": {
+      "v": {
+        "type": "int"
+      }
+    }
+  },
+  "sawHistChecked": "Checked",
+  "sawHistUnchecked": "«Checked» taken back",
+  "sawHistSheetDone": "Sheet {n} sawn",
+  "@sawHistSheetDone": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "sawHistSheetUndone": "Sheet {n} mark taken back",
+  "@sawHistSheetUndone": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "sawHistDefect": "Spoilt on sheet {n}",
+  "@sawHistDefect": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "sawHistCancelled": "Cancelled",
+  "sawHistMerged": "Merged into {into}",
+  "@sawHistMerged": {
+    "placeholders": {
+      "into": {
+        "type": "String"
+      }
+    }
+  },
+  "sawOffcutToShelf": "Offcut {size} → stock",
+  "@sawOffcutToShelf": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "sawOffcutLabel": "Offcut",
+  "sawKerf": "Saw kerf, mm",
+  "sawTrim": "Edge trim, mm",
+  "sawOffcutFrom": "Offcut kept from, mm",
+  "sawFence": "Fence",
+  "sawFenceLeft": "Left",
+  "sawFenceRight": "Right",
+  "sawEdgeDeduct": "Take the edge thickness off the size",
+  "sawEdgeDeductHint": "A 766 part with a 2 mm edge at the bottom is sawn at 764.",
+  "sawSheetsTitle": "Sheets by thickness",
+  "sawSheetThickness": "Thickness, mm",
+  "sawSheetHeight": "Height (away from you), mm",
+  "sawSheetWidth": "Width, mm",
+  "sawAddSheet": "Sheet",
+  "sawDefaultSheet": "Other thicknesses: {height} × {width} (from the material norms)",
+  "@sawDefaultSheet": {
+    "placeholders": {
+      "height": {
+        "type": "int"
+      },
+      "width": {
+        "type": "int"
+      }
+    }
+  },
+  "sawSettingsSaved": "Saw settings saved",
+  "sawPrintSawnBy": "Sawn by",
+  "sawPrintDate": "Date",
+  "sawPrintDefects": "Spoilt (part no., why)",
+  "sawPrintMeasure": "After every fence setting, cut and measure the first part",
+  "sawPrintEdgeLegend": "Edge: thick line 2 mm, dashed 0.4",
+  "sawPrintCuts": "Cut order",
+  "sawPrintSaw": "Kerf {kerf} mm · edge trim {trim} mm",
+  "@sawPrintSaw": {
+    "placeholders": {
+      "kerf": {
+        "type": "String"
+      },
+      "trim": {
+        "type": "String"
+      }
+    }
+  }
 }

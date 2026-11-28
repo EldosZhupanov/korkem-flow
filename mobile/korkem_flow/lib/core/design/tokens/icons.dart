@@ -150,6 +150,12 @@ abstract final class AppIcons {
 
   /// A piece of a sheet put by for later (owner, 18.11.2026).
   static const IconData offcut = Symbols.crop_rounded;
+
+  /// Sheets cut on the panel saw (owner, 28.11.2026), jobs sawn together,
+  /// and a parts list read from a file.
+  static const IconData sawCutting = Symbols.carpenter_rounded;
+  static const IconData merge = Symbols.merge_rounded;
+  static const IconData fromFile = Symbols.upload_file_rounded;
   static const IconData call = Symbols.call_rounded;
   static const IconData email = Symbols.mail_rounded;
   static const IconData whatsApp = Symbols.chat_rounded;

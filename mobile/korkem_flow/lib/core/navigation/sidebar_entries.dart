@@ -165,6 +165,13 @@ const sidebarSectionGroups = <SidebarGroup>[
         icon: AppIcons.colour,
         labelOf: _paint,
       ),
+      // «Раскрой» (owner, 28.11.2026): the panel saw's jobs, over the
+      // offcuts they leave.
+      SidebarPage(
+        path: Routes.saw,
+        icon: AppIcons.sawCutting,
+        labelOf: _saw,
+      ),
       // «Обрезки» (owner, 18.11.2026): pieces of sheets for small parts.
       SidebarPage(
         path: Routes.offcuts,
@@ -277,6 +284,7 @@ String _cash(AppLocalizations l10n) => l10n.mdfCashTitle;
 String _debts(AppLocalizations l10n) => l10n.mdfDebtsTitle;
 String _toWrite(AppLocalizations l10n) => l10n.navToWrite;
 String _offcuts(AppLocalizations l10n) => l10n.navOffcuts;
+String _saw(AppLocalizations l10n) => l10n.sawTitle;
 String _report(AppLocalizations l10n) => l10n.mdfReportTitle;
 String _supplies(AppLocalizations l10n) => l10n.mdfGroupStock;
 String _references(AppLocalizations l10n) => l10n.mdfGroupSettings;

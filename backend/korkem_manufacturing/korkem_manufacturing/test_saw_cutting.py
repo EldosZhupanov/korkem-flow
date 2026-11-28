@@ -250,7 +250,7 @@ class TestSawCuttingJob(IntegrationTestCase):
 		first = self._as(CUTTER, saw_cutting.sheet_done, made["name"], 1, defects="деталь 2: скол")
 		self.assertEqual(first["status"], "Cutting")
 		self.assertEqual(first["sheets"][0]["defects"], "деталь 2: скол")
-		shelved = first["sheets"][0]["offcuts"]
+		shelved = [o["name"] for s in first["sheets"] for o in s["offcuts"]]
 		for name in shelved:
 			self.assertEqual(frappe.db.get_value(offcuts.DOCTYPE, name, "material_item"), self.board)
 

@@ -248,8 +248,8 @@ def edge_metres(rows: list[dict]) -> dict[str, float]:
 			if e:
 				length = r["width"] if side < 2 else r["height"]
 				key = f"{e:g}"
-				out[key] = round(out.get(key, 0) + length * r["qty"] / 1000, 2)
-	return out
+				out[key] = out.get(key, 0) + length * r["qty"] / 1000
+	return {k: round(v, 2) for k, v in out.items()}
 
 
 # --------------------------------------------------------------------------
@@ -742,7 +742,7 @@ def job(name: str) -> dict:
 		"waste_pct": flt(doc.waste_pct), "fences": cint(doc.fences),
 		"sheets": [{"sheet_no": cint(s.sheet_no), "status": s.status, "sawn_by": s.sawn_by,
 					"sawn_by_name": s.sawn_by_name, "sawn_at": str(s.sawn_at) if s.sawn_at else None,
-					"defects": s.defects, "offcuts": json.loads(s.offcuts or "[]")} for s in doc.sheets],
+					"defects": s.defects, "offcuts": _offcut_rows(json.loads(s.offcuts or "[]"))} for s in doc.sheets],
 		"made_by": get_fullname(doc.made_by) if doc.made_by else None,
 		"checked_by": get_fullname(doc.checked_by) if doc.checked_by else None,
 		"checked_at": str(doc.checked_at) if doc.checked_at else None,
@@ -751,6 +751,16 @@ def job(name: str) -> dict:
 		"can_make": can_make(),
 		"history": history(doc.name),
 	}
+
+
+def _offcut_rows(names: list[str]) -> list[dict]:
+	"""A sheet's offcuts as their labels need them: the QR, the size, whether still on the shelf."""
+	if not names:
+		return []
+	rows = {r.name: r for r in frappe.get_all(offcuts.DOCTYPE, filters={"name": ["in", names]},
+											  fields=["name", "qr_code", "length_mm", "width_mm", "status"])}
+	return [{"name": n, "qr": rows[n].qr_code, "length_mm": flt(rows[n].length_mm), "width_mm": flt(rows[n].width_mm),
+			 "status": rows[n].status} for n in names if n in rows]
 
 
 def history(name: str) -> list[dict]:
