@@ -6,6 +6,7 @@ import 'package:korkem_flow/features/film_catalog/domain/film.dart';
 import 'package:korkem_flow/features/press_layout/data/press_layout_repository.dart';
 import 'package:korkem_flow/features/press_layout/domain/press_edit.dart';
 import 'package:korkem_flow/features/press_layout/domain/press_layout.dart';
+import 'package:korkem_flow/features/press_layout/presentation/press_film_peek.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_layout_screen.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_map.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_panel.dart';
@@ -193,6 +194,12 @@ class _Films implements FilmCatalogRepository {
     return ['F-1'];
   }
 
+  /// What the catalogue holds, when the film's card is opened.
+  List<Film> films = const [];
+
+  @override
+  Future<FilmCatalog> catalog() async => FilmCatalog(films: films);
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -233,6 +240,102 @@ void main() {
       PlacedPart.fromJson(const {'pos': 1, 'forced': true}).forced,
       isTrue,
     );
+  });
+
+  test('the film an order names, as the server finds it (27.11.2026)', () {
+    const films = [
+      Film(
+        item: 'A1',
+        maker: 'Adilet',
+        colour: 'Белое дерево',
+        thicknessMm: 0.25,
+      ),
+      Film(
+        item: 'A2',
+        maker: 'Adilet',
+        colour: 'Белое дерево',
+        thicknessMm: 0.4,
+      ),
+      Film(item: 'B1', maker: 'Sanwa', colour: 'Белое дерево'),
+      Film(item: 'C1', maker: 'Adilet', colour: 'Серый'),
+    ];
+    List<String> items(String decor) =>
+        filmsForDecor(films, decor).map((f) => f.item).toList();
+    expect(items('Adilet · Белое дерево'), ['A1', 'A2']);
+    expect(items('adilet · белое дерево · 0,25'), ['A1']);
+    expect(items('Adilet · Белое дерево · ?'), ['A1', 'A2']);
+    expect(items('Белое дерево'), ['A1', 'A2', 'B1']);
+    expect(items('Синий'), isEmpty);
+  });
+
+  test('what the order lacks: free metres before the press, the server '
+      'after', () {
+    final layout = OrderPressLayout.fromJson(_layout());
+    final film = layout.films.first;
+    const group = [
+      Film(item: 'F-1', maker: 'Adilet', colour: 'Авори', onHand: 2, held: 0.5),
+    ];
+    final before = pressFilmStock(film, layout, group);
+    expect((before.need, before.free, before.held), (3.1, 1.5, false));
+    expect(before.lack, closeTo(1.6, 1e-9));
+    final launched = OrderPressLayout.fromJson({
+      ..._layout(),
+      'approved': const {'by': 'Олжас', 'at': '2026-11-12 15:40'},
+      'short': const [
+        {'decor': 'ZB 852-2 Авори', 'item': 'F-1', 'short_m': 1.0},
+      ],
+    });
+    final after = pressFilmStock(launched.films.first, launched, group);
+    expect((after.held, after.lack), (true, 1.0));
+  });
+
+  testWidgets('the film title opens its card beside the layout (28.11.2026)', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final films = _Films()
+      ..films = const [
+        Film(
+          item: 'F-1',
+          maker: 'Adilet',
+          colour: 'ZB 852-2 Авори',
+          widthMm: 1250,
+          onHand: 2,
+        ),
+      ];
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          pressLayoutRepositoryProvider.overrideWithValue(_FakeRepository()),
+          filmCatalogRepositoryProvider.overrideWithValue(films),
+        ],
+        child: harness(const PressLayoutScreen(salesOrder: 'SO-1110')),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.byKey(const ValueKey('pressFilmOpen:ZB 852-2 Авори')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const ValueKey('pressFilmPeek')), findsOneWidget);
+    expect(find.byKey(const ValueKey('pressPeekShort')), findsOneWidget);
+    expect(
+      find.text('Needs 3.1 m · free 2 m — 1.1 m short'),
+      findsOneWidget,
+    );
+    expect(find.text('Roll 1250 mm · table 1210 mm'), findsOneWidget);
+    expect(find.byKey(const ValueKey('pressPeekWhere')), findsOneWidget);
+
+    // The layout stayed where it was, under the card.
+    await tester.tapAt(const Offset(20, 1200));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('pressFilmPeek')), findsNothing);
+    expect(find.byType(PressMap), findsNWidgets(2));
   });
 
   test('reads the server layout', () {

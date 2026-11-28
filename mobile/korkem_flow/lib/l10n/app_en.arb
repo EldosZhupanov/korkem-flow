@@ -12095,5 +12095,61 @@
       }
     }
   },
-  "mdfStageNoDoer": "who?"
+  "mdfStageNoDoer": "who?",
+  "pressPeekTooltip": "The film's card",
+  "pressPeekOrder": "For this order",
+  "pressPeekEnough": "Needs {need} m · free {free} m — enough",
+  "@pressPeekEnough": {
+    "placeholders": {
+      "need": {
+        "type": "String"
+      },
+      "free": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPeekShort": "Needs {need} m · free {free} m — {lack} m short",
+  "@pressPeekShort": {
+    "placeholders": {
+      "need": {
+        "type": "String"
+      },
+      "free": {
+        "type": "String"
+      },
+      "lack": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPeekHeld": "Held for this order · {need} m",
+  "@pressPeekHeld": {
+    "placeholders": {
+      "need": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPeekShortHeld": "{lack} m short — it is on «To order»",
+  "@pressPeekShortHeld": {
+    "placeholders": {
+      "lack": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPeekRoll": "Roll {roll} mm · table {press} mm",
+  "@pressPeekRoll": {
+    "placeholders": {
+      "roll": {
+        "type": "String"
+      },
+      "press": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPeekUnknown": "There is no such film in the catalogue.",
+  "pressPeekWhere": "Where to get it"
 }

@@ -13777,4 +13777,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfStageNoDoer => 'who?';
+
+  @override
+  String get pressPeekTooltip => 'The film\'s card';
+
+  @override
+  String get pressPeekOrder => 'For this order';
+
+  @override
+  String pressPeekEnough(String need, String free) {
+    return 'Needs $need m · free $free m — enough';
+  }
+
+  @override
+  String pressPeekShort(String need, String free, String lack) {
+    return 'Needs $need m · free $free m — $lack m short';
+  }
+
+  @override
+  String pressPeekHeld(String need) {
+    return 'Held for this order · $need m';
+  }
+
+  @override
+  String pressPeekShortHeld(String lack) {
+    return '$lack m short — it is on «To order»';
+  }
+
+  @override
+  String pressPeekRoll(String roll, String press) {
+    return 'Roll $roll mm · table $press mm';
+  }
+
+  @override
+  String get pressPeekUnknown => 'There is no such film in the catalogue.';
+
+  @override
+  String get pressPeekWhere => 'Where to get it';
 }

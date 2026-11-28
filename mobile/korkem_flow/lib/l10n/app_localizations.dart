@@ -23439,6 +23439,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'who?'**
   String get mdfStageNoDoer;
+
+  /// No description provided for @pressPeekTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'The film\'s card'**
+  String get pressPeekTooltip;
+
+  /// No description provided for @pressPeekOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'For this order'**
+  String get pressPeekOrder;
+
+  /// No description provided for @pressPeekEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs {need} m · free {free} m — enough'**
+  String pressPeekEnough(String need, String free);
+
+  /// No description provided for @pressPeekShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs {need} m · free {free} m — {lack} m short'**
+  String pressPeekShort(String need, String free, String lack);
+
+  /// No description provided for @pressPeekHeld.
+  ///
+  /// In en, this message translates to:
+  /// **'Held for this order · {need} m'**
+  String pressPeekHeld(String need);
+
+  /// No description provided for @pressPeekShortHeld.
+  ///
+  /// In en, this message translates to:
+  /// **'{lack} m short — it is on «To order»'**
+  String pressPeekShortHeld(String lack);
+
+  /// No description provided for @pressPeekRoll.
+  ///
+  /// In en, this message translates to:
+  /// **'Roll {roll} mm · table {press} mm'**
+  String pressPeekRoll(String roll, String press);
+
+  /// No description provided for @pressPeekUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no such film in the catalogue.'**
+  String get pressPeekUnknown;
+
+  /// No description provided for @pressPeekWhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Where to get it'**
+  String get pressPeekWhere;
 }
 
 class _AppLocalizationsDelegate

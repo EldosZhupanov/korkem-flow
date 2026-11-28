@@ -4096,5 +4096,14 @@
   "mdfRowStageNoDoer": "{order}: {stage} дайын. Кім жасады — көрсетілмеген",
   "mdfDoerSet": "Кім жасады",
   "mdfFilterNoDoer": "Орындаушысыз · {count}",
-  "mdfStageNoDoer": "кім?"
+  "mdfStageNoDoer": "кім?",
+  "pressPeekTooltip": "Үлдір карточкасы",
+  "pressPeekOrder": "Осы тапсырыс үшін",
+  "pressPeekEnough": "Керек {need} м · бос {free} м — жетеді",
+  "pressPeekShort": "Керек {need} м · бос {free} м — {lack} м жетпейді",
+  "pressPeekHeld": "Осы тапсырысқа қойылды · {need} м",
+  "pressPeekShortHeld": "{lack} м жетпеді — «Тапсырысқа» тізімінде",
+  "pressPeekRoll": "Орам {roll} мм · үстел {press} мм",
+  "pressPeekUnknown": "Каталогта мұндай үлдір жоқ.",
+  "pressPeekWhere": "Қайдан алу"
 }
