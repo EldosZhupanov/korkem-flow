@@ -46,12 +46,14 @@ PARTS = [
 ]
 
 
-def _user(email: str, role: str) -> None:
+def _user(email: str, *roles: str) -> None:
 	if not frappe.db.exists("User", email):
 		frappe.get_doc(
 			{"doctype": "User", "email": email, "first_name": email.split("@")[0], "send_welcome_email": 0,
-			 "roles": [{"role": role}]}
+			 "roles": [{"role": r} for r in roles]}
 		).insert(ignore_permissions=True)
+	else:
+		frappe.get_doc("User", email).add_roles(*roles)
 	frappe.defaults.set_user_default("Company", COMPANY, user=email)
 
 
@@ -177,7 +179,8 @@ class TestSawCuttingJob(IntegrationTestCase):
 		super().setUpClass()
 		frappe.set_user("Administrator")
 		facade_prices.seed_company(COMPANY)
-		_user(MANAGER, "Sales Manager")
+		# Sales User makes the order's customer; Sales Manager makes the job.
+		_user(MANAGER, "Sales User", "Sales Manager")
 		_user(CUTTER, "Manufacturing User")
 		for kind, value in (("Толщина МДФ", THICKNESS), ("Производитель", MAKER)):
 			material_stock.add_option(kind, value)
