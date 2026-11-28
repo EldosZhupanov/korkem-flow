@@ -13735,4 +13735,41 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfStageNoDoer => 'кім?';
+
+  @override
+  String get pressPeekTooltip => 'Үлдір карточкасы';
+
+  @override
+  String get pressPeekOrder => 'Осы тапсырыс үшін';
+
+  @override
+  String pressPeekEnough(String need, String free) {
+    return 'Керек $need м · бос $free м — жетеді';
+  }
+
+  @override
+  String pressPeekShort(String need, String free, String lack) {
+    return 'Керек $need м · бос $free м — $lack м жетпейді';
+  }
+
+  @override
+  String pressPeekHeld(String need) {
+    return 'Осы тапсырысқа қойылды · $need м';
+  }
+
+  @override
+  String pressPeekShortHeld(String lack) {
+    return '$lack м жетпеді — «Тапсырысқа» тізімінде';
+  }
+
+  @override
+  String pressPeekRoll(String roll, String press) {
+    return 'Орам $roll мм · үстел $press мм';
+  }
+
+  @override
+  String get pressPeekUnknown => 'Каталогта мұндай үлдір жоқ.';
+
+  @override
+  String get pressPeekWhere => 'Қайдан алу';
 }

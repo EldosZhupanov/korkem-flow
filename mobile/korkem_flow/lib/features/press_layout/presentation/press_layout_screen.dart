@@ -474,7 +474,8 @@ class _FilmCard extends ConsumerWidget {
               child: InkWell(
                 key: ValueKey('pressFilmOpen:${film.decor}'),
                 borderRadius: BorderRadius.circular(AppRadius.sm),
-                onTap: switch (ref.watch(orderPressLayoutProvider(salesOrder))
+                onTap: switch (ref
+                    .watch(orderPressLayoutProvider(salesOrder))
                     .value) {
                   final layout? => () => showPressFilmPeek(
                     context,

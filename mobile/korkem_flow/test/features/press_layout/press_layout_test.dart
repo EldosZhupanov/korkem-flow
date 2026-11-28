@@ -244,8 +244,18 @@ void main() {
 
   test('the film an order names, as the server finds it (27.11.2026)', () {
     const films = [
-      Film(item: 'A1', maker: 'Adilet', colour: 'Белое дерево', thicknessMm: 0.25),
-      Film(item: 'A2', maker: 'Adilet', colour: 'Белое дерево', thicknessMm: 0.4),
+      Film(
+        item: 'A1',
+        maker: 'Adilet',
+        colour: 'Белое дерево',
+        thicknessMm: 0.25,
+      ),
+      Film(
+        item: 'A2',
+        maker: 'Adilet',
+        colour: 'Белое дерево',
+        thicknessMm: 0.4,
+      ),
       Film(item: 'B1', maker: 'Sanwa', colour: 'Белое дерево'),
       Film(item: 'C1', maker: 'Adilet', colour: 'Серый'),
     ];

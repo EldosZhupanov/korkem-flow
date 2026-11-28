@@ -13813,4 +13813,41 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfStageNoDoer => 'кто?';
+
+  @override
+  String get pressPeekTooltip => 'Карточка плёнки';
+
+  @override
+  String get pressPeekOrder => 'Для этого заказа';
+
+  @override
+  String pressPeekEnough(String need, String free) {
+    return 'Нужно $need м · свободно $free м — хватает';
+  }
+
+  @override
+  String pressPeekShort(String need, String free, String lack) {
+    return 'Нужно $need м · свободно $free м — не хватает $lack м';
+  }
+
+  @override
+  String pressPeekHeld(String need) {
+    return 'Отложено под этот заказ · $need м';
+  }
+
+  @override
+  String pressPeekShortHeld(String lack) {
+    return 'Не хватило $lack м — стоит в «К заказу»';
+  }
+
+  @override
+  String pressPeekRoll(String roll, String press) {
+    return 'Рулон $roll мм · стол $press мм';
+  }
+
+  @override
+  String get pressPeekUnknown => 'Такой плёнки нет в каталоге.';
+
+  @override
+  String get pressPeekWhere => 'Где взять';
 }
